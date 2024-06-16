@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive Layout with Flexbox</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+     // height: 100vh;
+     // overflow: hidden;
+    }
+    #menu {
+      background: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      overflow: auto;
+      border-bottom: 1px solid #ddd;
+    }
+    #mainContainer {
+      display: flex;
+      flex-direction: row;
+      flex-grow: 1;
+      overflow: hidden;
+    }
+    #tableContainer {
+      flex-grow: 1;
+   //   overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    #editableTable {
+      flex-grow: 1;
+    //  overflow-y: auto;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    #editableTable th, #editableTable td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    #editableTable th {
+      background-color: #f2f2f2;
+      position: sticky;
+      top: 0;
+    }
+    #svgContainer {
+      flex-grow: 1;
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+   //   overflow: auto;
+    }
+    svg {
+      border: 1px solid black;
+    }
+    .highlight {
+      background-color: yellow;
+    }
+    .tooltip {
+      position: absolute;
+      background-color: white;
+      border: 1px solid black;
+      padding: 5px;
+      display: none;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .highlight-ellipse {
+      stroke: red !important;
+      stroke-width: 2 !important;
+    }
+    @media (max-width: 800px) {
+      #mainContainer {
+        flex-direction: column;
+      }
+      #svgContainer {
+      //  height: 50%;
+        min-width: 100%;
+        max-width: 100%;
+      }
+      #tableContainer {
+        //height: 50%;
+        min-width: 100%;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar menu -->
+<div id="menu">
+  <input type="file" id="fileInput" accept=".txt">
+  <button onclick="handleFile()">Load Data</button>
+  <button onclick="drawEllipses()">CreateMap</button>
+  <button onclick="saveBMP()">Save as BMP</button>
+</div>
+
+<!-- Main container for table and SVG -->
+<div id="mainContainer">
+  <div id="tableContainer">
+    <table id="editableTable">
+      <!-- Table content will be generated here using JavaScript -->
+    </table>
+  </div>
+  <div id="svgContainer">
+    <svg id="mySVG" width="500" height="500"></svg>
+  </div>
+</div>
+
+<!-- Tooltip element -->
+<div id="tooltip" class="tooltip"></div>
+
+<script>
+  // Function to create an editable table
+  function createEditableTable(rows, cols) {
+    var table = document.getElementById("editableTable");
+    table.innerHTML = ""; // Clear existing table
+
+    for (var i = 0; i < rows; i++) {
+      var row = table.insertRow(i);
+
+      for (var j = 0; j < cols; j++) {
+        var cell = row.insertCell(j);
+        cell.contentEditable = true; // Set the cell to be editable
+      }
+    }
+  }
+
+  // Function to load data from a TXT file and populate the table
+  function loadDataFromFile(file) {
+    var table = document.getElementById("editableTable");
+    var reader = new FileReader();
+
+    reader.onload = function (e) {
+      var dataArray = e.target.result.split('\n');
+
+      // Create table with the number of rows equal to the number of lines in the file
+      createEditableTable(dataArray.length, 6); // Assuming 6 columns for demonstration
+
+      for (var i = 0; i < dataArray.length; i++) {
+        var row = table.rows[i];
+        var rowData = dataArray[i].split('\t'); // Assuming tab-separated data
+
+        for (var j = 0; j < rowData.length; j++) {
+          var cell = row.cells[j];
+          cell.innerHTML = rowData[j];
+        }
+      }
+
+      drawEllipses(); // Draw ellipses after loading data
+    };
+
+    reader.readAsText(file);
+  }
+
+  // Function to draw ellipses on the SVG based on table data
+  function drawEllipses() {
+    var svg = document.getElementById("mySVG");
+    var table = document.getElementById("editableTable");
+
+    svg.innerHTML = ''; // Clear the SVG
+
+    for (var i = 1; i < table.rows.length; i++) {
+      var x = parseFloat(table.rows[i].cells[0].innerHTML.replace(',', '.')) / 8 + 250;
+      var y = parseFloat(table.rows[i].cells[1].innerHTML.replace(',', '.')) / 8 + 250;
+      var radius = Number(parseFloat(table.rows[i].cells[2].innerHTML.replace(',', '.')));
+      var ellipticity = Number(parseFloat(table.rows[i].cells[3].innerHTML.replace(',', '.')));
+      var angle = parseFloat(table.rows[i].cells[4].innerHTML.replace(',', '.'));
+      var A = radius / (Math.pow((1 - 2 * ellipticity + ellipticity * ellipticity), 1 / 4));
+      var B = (radius * radius) / A;
+
+      var ellipse = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+      ellipse.setAttribute("cx", x);
+      ellipse.setAttribute("cy", y);
+      ellipse.setAttribute("rx", A);
+      ellipse.setAttribute("ry", B);
+      ellipse.setAttribute("fill", "rgba(0,0,0,0.5)");
+      ellipse.setAttribute("stroke", "black");
+      ellipse.setAttribute("transform", `rotate(${angle}, ${x}, ${y})`);
+      ellipse.setAttribute("data-row-index", i);
+
+      // Add event listener to display tooltip when mouse hovers over ellipse
+      ellipse.addEventListener('mouseover', function(event) {
+        this.setAttribute("stroke", "red");
+        this.setAttribute("stroke-width", "2");
+        var tooltip = document.getElementById("tooltip");
+        tooltip.style.display = 'block';
+        tooltip.style.left = event.pageX + 'px';
+        tooltip.style.top = event.pageY + 'px';
+        tooltip.innerHTML = `x: ${(x - 250) * 8}, y: ${(y - 250) * 8}, size: ${radius}, ellipticity: ${ellipticity}, angle: ${angle}`;
+      });
+
+      // Remove tooltip and highlighting when mouse leaves ellipse
+      ellipse.addEventListener('mouseout', function() {
+        this.setAttribute("stroke", "black");
+        this.setAttribute("stroke-width", "1");
+        var tooltip = document.getElementById("tooltip");
+        tooltip.style.display = 'none';
+      });
+
+      // Add event listener to highlight table row when ellipse is clicked
+      ellipse.addEventListener('click', function() {
+        // Remove highlight from any previously highlighted row
+        var highlightedRow = document.querySelector('.highlight');
+        if (highlightedRow) {
+          highlightedRow.classList.remove('highlight');
+        }
+
+        // Highlight the corresponding row in the table
+        var rowIndex = this.getAttribute('data-row-index');
+        table.rows[rowIndex].classList.add('highlight');
+      });
+
+      svg.appendChild(ellipse);
+    }
+
+    // Add event listener to highlight ellipse when table row is clicked
+    Array.from(table.rows).forEach((row, index) => {
+      row.addEventListener('click', function() {
+        // Remove highlight from any previously highlighted ellipse
+        var highlightedEllipse = document.querySelector('.highlight-ellipse');
+        if (highlightedEllipse) {
+          highlightedEllipse.classList.remove('highlight-ellipse');
+          highlightedEllipse.setAttribute("stroke", "black");
+          highlightedEllipse.setAttribute("stroke-width", "1");
+        }
+
+        // Highlight the corresponding ellipse
+        var ellipse = svg.querySelector(`ellipse[data-row-index="${index}"]`);
+        if (ellipse) {
+          ellipse.classList.add('highlight-ellipse');
+          ellipse.setAttribute("stroke", "red");
+          ellipse.setAttribute("stroke-width", "2");
+        }
+
+        // Highlight the clicked row
+        var highlightedRow = document.querySelector('.highlight');
+        if (highlightedRow) {
+          highlightedRow.classList.remove('highlight');
+        }
+        this.classList.add('highlight');
+      });
+    });
+  }
+
+  // Function to handle file upload
+  function handleFile() {
+	  var fileInput = document.getElementById("fileInput");
+	  var file = fileInput.files[0];
+	  
+	  if (file) {
+      loadDataFromFile(file);
+	  } else {
+      alert("Please select a file.");
+	  }
+	  
+   }
+
+  // Function to save SVG as BMP
+  function saveBMP() {
+    var svgString = new XMLSerializer().serializeToString(document.getElementById("mySVG"));
+    var canvas = document.createElement("canvas");
+    var ctx = canvas.getContext("2d");
+    var DOMURL = window.URL || window.webkitURL || window;
+
+    var img = new Image();
+    var svgBlob = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
+    var url = DOMURL.createObjectURL(svgBlob);
+
+    img.onload = function() {
+      ctx.drawImage(img, 0, 0);
+      DOMURL.revokeObjectURL(url);
+
+      var imgURI = canvas.toDataURL("image/bmp").replace("image/bmp", "image/octet-stream");
+
+      var evt = new MouseEvent("click", {
+        view: window,
+        bubbles: false,
+        cancelable: true
+      });
+
+      var a = document.createElement("a");
+      a.setAttribute("download", "image.bmp");
+      a.setAttribute("href", imgURI);
+      a.setAttribute("target", "_blank");
+
+      a.dispatchEvent(evt);
+    };
+
+    img.src = url;
+  }
+</script>
+
+</body>
+</html>
+
+  
+  
