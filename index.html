@@ -169,7 +169,8 @@
         <input type="file" id="fileInput" accept=".txt" />
         <button onclick="handleFile()">Load Data</button>
         <button onclick="drawEllipses()">CreateMap</button>
-        <button onclick="saveBMP()">Save as BMP</button>
+        <button onclick="saveBMP()">Save Map</button>
+        <button onclick="histogramSVGsaveBMP()">Save as D.H.</button>
       </div>
       <nav>
         <ul class="tabs">
@@ -524,9 +525,68 @@
             bubbles: false,
             cancelable: true,
           });
+          const fileInput = document.getElementById("fileInput");
+          // Отримати вибраний файл
+          const file = fileInput.files[0];
+
+          // Отримати ім'я файлу без розширення
+          const fileName = file.name.replace(/\.[^/.]+$/, ""); // Видаляємо останнє збігання крапки і тексту за нею до кінця рядка
+
+          //console.log("Назва файлу без розширення:", fileName);
 
           var a = document.createElement("a");
-          a.setAttribute("download", "image.bmp");
+          a.setAttribute("download", fileName + ".bmp");
+          a.setAttribute("href", imgURI);
+          a.setAttribute("target", "_blank");
+
+          a.dispatchEvent(evt);
+        };
+
+        img.src = url;
+      }
+
+      // Function to save SVG as BMP
+      function histogramSVGsaveBMP() {
+        var svgElement = document.getElementById("histogramSVG");
+        var svgString = new XMLSerializer().serializeToString(svgElement);
+
+        // Create a canvas element and set its dimensions to match the SVG
+        var canvas = document.createElement("canvas");
+        canvas.width = svgElement.clientWidth;
+        canvas.height = svgElement.clientHeight;
+        var ctx = canvas.getContext("2d");
+
+        var DOMURL = window.URL || window.webkitURL || window;
+        var img = new Image();
+        var svgBlob = new Blob([svgString], {
+          type: "image/svg+xml;charset=utf-8",
+        });
+        var url = DOMURL.createObjectURL(svgBlob);
+
+        img.onload = function () {
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          DOMURL.revokeObjectURL(url);
+
+          var imgURI = canvas
+            .toDataURL("image/bmp")
+            .replace("image/bmp", "image/octet-stream");
+
+          var evt = new MouseEvent("click", {
+            view: window,
+            bubbles: false,
+            cancelable: true,
+          });
+          const fileInput = document.getElementById("fileInput");
+          // Отримати вибраний файл
+          const file = fileInput.files[0];
+
+          // Отримати ім'я файлу без розширення
+          const fileName = file.name.replace(/\.[^/.]+$/, ""); // Видаляємо останнє збігання крапки і тексту за нею до кінця рядка
+
+          //console.log("Назва файлу без розширення:", fileName);
+
+          var a = document.createElement("a");
+          a.setAttribute("download", "D.H. - " + fileName + ".bmp");
           a.setAttribute("href", imgURI);
           a.setAttribute("target", "_blank");
 
@@ -630,20 +690,20 @@
       }
 
       /* function createCircle(cx, cy, r, stroke = "blue", strokeWidth = 2) {
-        const circle = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "circle"
-        );
-        circle.setAttribute("cx", cx);
-        circle.setAttribute("cy", cy);
-        circle.setAttribute("r", r);
-        circle.setAttribute("stroke", stroke);
-        circle.setAttribute("stroke-width", strokeWidth);
-        circle.setAttribute("fill", "none");
-        circle.classList.add("ring");
-        return circle;
-      }
-*/
+              const circle = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "circle"
+              );
+              circle.setAttribute("cx", cx);
+              circle.setAttribute("cy", cy);
+              circle.setAttribute("r", r);
+              circle.setAttribute("stroke", stroke);
+              circle.setAttribute("stroke-width", strokeWidth);
+              circle.setAttribute("fill", "none");
+              circle.classList.add("ring");
+              return circle;
+            }
+      */
       function getDataFromTable() {
         const data = [];
         const rows = document.querySelectorAll("#editableTable tr");
@@ -754,26 +814,23 @@
             Math.PI * ((index + 1) ** 2 - index ** 2) * ringDistance ** 2;
           const ringFraction = ringArea / totalArea;
           const density = count / totalGalaxies / ringFraction;
-          //console.log(count, totalGalaxies, ringFraction);
-          //  resultsDiv.innerHTML += `Кільце ${index + 1}: ${density} Density<br>`;
-
-          return density;
+          return { density, ringFraction };
         });
 
-        drawHistogram(histogramData);
+        drawHistogram(histogramData, ringDistance, numRings);
       }
 
-      // Function to draw histogram with axes
-      function drawHistogram(data) {
+      // Function to draw histogram with axes and borders
+      function drawHistogram(data, ringDistance, numRings) {
         const svg = document.getElementById("histogramSVG");
         svg.innerHTML = "";
 
         const width = svg.clientWidth;
         const height = svg.clientHeight;
-        const margin = 50;
+        const margin = 55;
         const barWidth = (width - margin * 2) / data.length;
 
-        const maxDensity = Math.max(...data);
+        const maxDensity = Math.max(...data.map((d) => d.density));
 
         // Create X and Y axes
         const xAxis = document.createElementNS(
@@ -784,8 +841,8 @@
         xAxis.setAttribute("y1", height - margin);
         xAxis.setAttribute("x2", width - margin);
         xAxis.setAttribute("y2", height - margin);
-        xAxis.setAttribute("stroke", "black");
         xAxis.setAttribute("stroke-width", "2");
+        xAxis.setAttribute("stroke", "black");
         svg.appendChild(xAxis);
 
         const yAxis = document.createElementNS(
@@ -796,30 +853,49 @@
         yAxis.setAttribute("y1", margin);
         yAxis.setAttribute("x2", margin);
         yAxis.setAttribute("y2", height - margin);
-        yAxis.setAttribute("stroke", "black");
         yAxis.setAttribute("stroke-width", "2");
+        yAxis.setAttribute("stroke", "black");
         svg.appendChild(yAxis);
 
-        // Create X axis labels
-        data.forEach((_, index) => {
-          const x = margin + index * barWidth + barWidth / 2;
-          const text = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "text"
-          );
-          text.setAttribute("x", x);
-          text.setAttribute("y", height - margin + 25);
-          text.setAttribute("text-anchor", "middle");
-          text.setAttribute("font-size", "18");
-          text.setAttribute("font-family", "Arial");
-          text.textContent = `${index + 1}`;
-          svg.appendChild(text);
+        // Create X axis labels and ticks
+        data.forEach((d, index) => {
+          if (index < data.length - 1) {
+            const x = margin + index * barWidth + barWidth / 2;
+
+            // Labels
+            const text = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "text"
+            );
+            text.setAttribute("x", x);
+            text.setAttribute("y", height - margin + 25);
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("font-size", "18");
+            text.setAttribute("font-family", "Arial");
+            text.textContent = d.ringFraction.toFixed(2);
+            svg.appendChild(text);
+
+            // Ticks
+            const tick = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "line"
+            );
+            tick.setAttribute("x1", x);
+            tick.setAttribute("y1", height - margin);
+            tick.setAttribute("x2", x);
+            tick.setAttribute("y2", height - margin + 5);
+            tick.setAttribute("stroke", "black");
+            svg.appendChild(tick);
+          }
         });
 
-        // Create Y axis labels
+        // Create Y axis labels, ticks, and grid lines
         const yAxisSteps = 5;
-        for (let i = 0; i <= yAxisSteps; i++) {
+        for (let i = 0; i < yAxisSteps; i++) {
           const y = height - margin - ((height - margin * 2) / yAxisSteps) * i;
+          const densityValue = ((maxDensity * i) / yAxisSteps).toFixed(2);
+
+          // Labels
           const text = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "text"
@@ -829,13 +905,38 @@
           text.setAttribute("text-anchor", "end");
           text.setAttribute("font-size", "18");
           text.setAttribute("font-family", "Arial");
-          text.textContent = ((maxDensity * i) / yAxisSteps).toFixed(2);
+          text.textContent = densityValue;
           svg.appendChild(text);
+
+          // Ticks
+          const tick = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          tick.setAttribute("x1", margin - 5);
+          tick.setAttribute("y1", y);
+          tick.setAttribute("x2", margin);
+          tick.setAttribute("y2", y);
+          tick.setAttribute("stroke", "black");
+          svg.appendChild(tick);
+
+          // Grid lines
+          const gridLine = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          gridLine.setAttribute("x1", margin);
+          gridLine.setAttribute("y1", y);
+          gridLine.setAttribute("x2", width - margin);
+          gridLine.setAttribute("y2", y);
+          gridLine.setAttribute("stroke", "lightgray");
+          gridLine.setAttribute("stroke-dasharray", "2,2");
+          svg.appendChild(gridLine);
         }
 
-        // Create bars
-        data.forEach((density, index) => {
-          const barHeight = (density / maxDensity) * (height - margin * 2);
+        // Create bars with borders
+        data.forEach((d, index) => {
+          const barHeight = (d.density / maxDensity) * (height - margin * 2);
           const rect = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "rect"
@@ -844,7 +945,7 @@
           rect.setAttribute("y", height - margin - barHeight);
           rect.setAttribute("width", barWidth);
           rect.setAttribute("height", barHeight);
-          rect.setAttribute("fill", "#d3d3d3");
+          rect.setAttribute("fill", "rgb(211, 211, 211)");
           rect.setAttribute("stroke", "black");
           rect.setAttribute("stroke-width", "1");
           svg.appendChild(rect);
@@ -855,11 +956,15 @@
           "http://www.w3.org/2000/svg",
           "text"
         );
-        xAxisLabel.setAttribute("x", width / 2);
-        xAxisLabel.setAttribute("y", height - 5);
-        xAxisLabel.setAttribute("text-anchor", "middle");
-        xAxisLabel.setAttribute("font-size", "18");
+        xAxisLabel.setAttribute("x", width - margin - 15);
+        xAxisLabel.setAttribute("y", height - margin + 25);
+        xAxisLabel.setAttribute("text-anchor", "end");
+        xAxisLabel.setAttribute("font-size", "22");
         xAxisLabel.setAttribute("font-family", "Arial");
+        xAxisLabel.setAttribute(
+          "style",
+          "font-weight: bold; font-style: italic;"
+        );
         xAxisLabel.textContent = "R";
         svg.appendChild(xAxisLabel);
 
@@ -867,14 +972,65 @@
           "http://www.w3.org/2000/svg",
           "text"
         );
-        yAxisLabel.setAttribute("x", -height / 2);
-        yAxisLabel.setAttribute("y", 15);
+        yAxisLabel.setAttribute("x", margin - 25);
+        yAxisLabel.setAttribute("y", margin + 30);
         yAxisLabel.setAttribute("text-anchor", "middle");
-        yAxisLabel.setAttribute("font-size", "18");
+        yAxisLabel.setAttribute("font-size", "22");
         yAxisLabel.setAttribute("font-family", "Arial");
-        yAxisLabel.setAttribute("transform", "rotate(-90)");
+        yAxisLabel.setAttribute(
+          "style",
+          "font-weight: bold; font-style: italic;"
+        );
         yAxisLabel.textContent = "f'";
         svg.appendChild(yAxisLabel);
+
+        // Create bars with borders and tooltips
+        data.forEach((d, index) => {
+          const barHeight = (d.density / maxDensity) * (height - margin * 2);
+          const rect = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "rect"
+          );
+          rect.setAttribute("x", margin + index * barWidth);
+          rect.setAttribute("y", height - margin - barHeight);
+          rect.setAttribute("width", barWidth);
+          rect.setAttribute("height", barHeight);
+          rect.setAttribute("fill", "rgb(211, 211, 211)");
+          rect.setAttribute("stroke", "black");
+          rect.setAttribute("stroke-width", "1");
+
+          // Tooltip (title attribute)
+          rect.setAttribute("title", `Density: ${d.density}`);
+
+          // Mouseover event listener for tooltip
+          rect.addEventListener("mouseover", (event) => {
+            const tooltip = document.getElementById("tooltip");
+            tooltip.textContent = `Density: ${d.density}`;
+            tooltip.style.display = "block";
+            tooltip.style.top = `${event.clientY}px`;
+            tooltip.style.left = `${event.clientX}px`;
+            rect.setAttribute("fill", "gray");
+          });
+
+          // Mouseout event listener to hide tooltip
+          rect.addEventListener("mouseout", () => {
+            const tooltip = document.getElementById("tooltip");
+            tooltip.style.display = "none";
+            rect.setAttribute("fill", "rgb(211, 211, 211)");
+          });
+
+          svg.appendChild(rect);
+        });
+
+        // Tooltip element
+        const tooltip = document.createElement("div");
+        tooltip.setAttribute("id", "tooltip");
+        tooltip.style.position = "absolute";
+        tooltip.style.display = "none";
+        tooltip.style.background = "rgba(0, 0, 0, 0.7)";
+        tooltip.style.color = "#fff";
+        tooltip.style.padding = "5px";
+        document.body.appendChild(tooltip);
       }
 
       function calculateRingArea(innerRadius, outerRadius) {
