@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Draw Ellipses from Table Data</title>
+    <title>Cluster Curtographi 2.0</title>
     <style>
       body {
         display: flex;
@@ -40,6 +40,17 @@
         overflow-y: auto;
         border-right: 1px solid #ddd;
       }
+      nav {
+        flex-basis: 30%;
+
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        margin-left: 15px;
+        background-color: #cecece;
+      }
+      content {
+        overflow-y: auto;
+      }
       #editableTable {
         width: 100%;
         border-collapse: collapse;
@@ -58,12 +69,13 @@
       #editableTable td.number-cell {
         background-color: #d3d3d3;
       }
-      #mySVG {
+      #mySVG,
+      #histogramSVG {
         border: 1px solid black;
         margin: 0 1%;
       }
       .highlight {
-        background-color: yellow;
+        background-color: rgb(129, 169, 234);
       }
       .tooltip {
         position: absolute;
@@ -75,15 +87,78 @@
         z-index: 10;
       }
       .highlight-ellipse {
-        stroke: red !important;
-        stroke-width: 2 !important;
+        fill: green;
+        stroke-width: 1 !important;
+      }
+
+      ellipse:hover {
+        cursor: pointer;
+      }
+
+      /* Стилі для навігаційних вкладок */
+
+      nav .tabs {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+      }
+
+      nav .tab-link {
+        padding: 5px 5px;
+        cursor: pointer;
+        color: rgb(0, 0, 0);
+        text-align: center;
+        border: 1px solid black;
+      }
+
+      nav .tab-link:hover {
+        background-color: #575757;
+      }
+
+      nav .tab-link.active {
+        background-color: #575757;
+        color: white;
+      }
+
+      /* Стилі для вмісту вкладок */
+      .tab-content {
+        display: none;
+        padding: 20px;
+        background-color: #f1f1f1;
+        border: 1px solid #ccc;
+        border-top: none; /* Прибрати верхній бордер для контенту, щоб він зливався з вкладками */
+        margin-top: -1px; /* Прибрати межу між вкладками і контентом */
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+      #tab-1 label {
+        display: block;
+        margin-top: 10px;
+      }
+
+      #tab-1 input,
+      #tab-1 button {
+        margin-top: 5px;
+      }
+
+      .ring {
+        fill: none;
+        stroke: blue;
+        stroke-width: 1;
       }
       @media (max-width: 800px) {
         main {
           flex-direction: column;
         }
-        aside {
+        aside,
+        nav {
           max-width: 100%;
+          margin-left: 0;
+          background-color: #333;
+          overflow: hidden;
         }
       }
     </style>
@@ -96,6 +171,15 @@
         <button onclick="drawEllipses()">CreateMap</button>
         <button onclick="saveBMP()">Save as BMP</button>
       </div>
+      <nav>
+        <ul class="tabs">
+          <li class="tab-link" data-tab="tab-1">C-I-O</li>
+          <li class="tab-link" data-tab="tab-2">Вкладка 2</li>
+          <li class="tab-link" data-tab="tab-3">Вкладка 3</li>
+          <li class="tab-link" data-tab="tab-4">Вкладка 4</li>
+          <li class="tab-link" data-tab="tab-5">Вкладка 5</li>
+        </ul>
+      </nav>
     </header>
 
     <main>
@@ -118,12 +202,96 @@
         </table>
       </aside>
 
-      <svg id="mySVG" width="500" height="500"></svg>
+      <content>
+        <svg id="mySVG" width="575" height="545"></svg>
+
+        <div>
+          <svg id="histogramSVG" width="575" height="545"></svg>
+        </div>
+      </content>
+      <nav>
+        <div id="tab-1" class="tab-content">
+          C-I-O
+          <label for="Radius">Радіус скупчення:</label>
+          <input type="number" id="Radius" value="calculateClusterRadius()" />
+          <br />
+          <label for="ringWith">Width:</label>
+          <input type="number" id="ringWith" value="0.1" />
+          <br />
+          <label for="numRings">Кількість кілець:</label>
+          <input type="number" id="numRings" value="5" disabled />
+          <br />
+          <label for="ringDistance">Відстань між кільцями:</label>
+          <input type="number" id="ringDistance" value="250" disabled />
+          <br />
+          <label for="centerX">Координата X центру:</label>
+          <input type="number" id="centerX" value="0" />
+          <br />
+          <label for="centerY">Координата Y центру:</label>
+          <input type="number" id="centerY" value="0" />
+          <br />
+          <label for="showRings"
+            >Показати галактики які беруть участь у розрахунках:</label
+          >
+          <input
+            type="checkbox"
+            id="showRings"
+            checked
+            onchange="toggleRings()"
+          />
+          <br />
+          <button onclick="analyzeConcentration()">
+            Аналізувати концентрацію
+          </button>
+          <button
+            onclick='findHighestDensityCenter(
+          250 + 65,
+          250 + 10,
+          parseFloat(document.getElementById("ringDistance").value) / 8,
+          document.getElementById("Radius").value,
+          getDataFromTable()
+        )'
+          >
+            Автоматичний пошук концентрації
+          </button>
+          <div id="results"></div>
+        </div>
+        <div id="tab-2" class="tab-content">Вміст вкладки 2</div>
+        <div id="tab-3" class="tab-content">Вміст вкладки 3</div>
+        <div id="tab-4" class="tab-content">Вміст вкладки 4</div>
+        <div id="tab-5" class="tab-content">Вміст вкладки 5</div>
+      </nav>
     </main>
 
     <div id="tooltip" class="tooltip"></div>
 
     <script>
+      // -----Аналіз скупчення-----
+      document.addEventListener("DOMContentLoaded", function () {
+        // Отримати всі посилання на вкладки і вміст вкладок
+        const tabLinks = document.querySelectorAll(".tab-link");
+        const tabContents = document.querySelectorAll(".tab-content");
+
+        // Додати подію натискання на всі посилання вкладок
+        tabLinks.forEach((link) => {
+          link.addEventListener("click", function () {
+            // Видалити клас active з усіх посилань і вмісту
+            tabLinks.forEach((item) => item.classList.remove("active"));
+            tabContents.forEach((item) => item.classList.remove("active"));
+
+            // Додати клас active до поточного посилання і відповідного вмісту
+            link.classList.add("active");
+            const tabId = link.getAttribute("data-tab");
+            document.getElementById(tabId).classList.add("active");
+          });
+        });
+
+        // Активувати першу вкладку за замовчуванням
+        tabLinks[0].classList.add("active");
+        tabContents[0].classList.add("active");
+      });
+      // ----------------
+
       // Function to create an editable table
       function createEditableTable(rows, cols) {
         var tableBody = document.querySelector("#editableTable tbody");
@@ -166,26 +334,38 @@
           }
 
           drawEllipses(); // Draw ellipses after loading data
+          //----
+          document.getElementById("Radius").value = calculateClusterRadius();
+          document.getElementById("ringDistance").value =
+            document.getElementById("Radius").value *
+            document.getElementById("ringWith").value;
+          document.getElementById("numRings").value = Math.ceil(
+            document.getElementById("Radius").value /
+              document.getElementById("ringDistance").value
+          );
+          //----
         };
 
         reader.readAsText(file);
       }
 
       // Function to draw ellipses on the SVG based on table data
-      // Function to draw ellipses on the SVG based on table data
       function drawEllipses() {
         var svg = document.getElementById("mySVG");
         var table = document.getElementById("editableTable");
 
         svg.innerHTML = ""; // Clear the SVG
-
+        drawLinesAndText();
         for (var i = 1; i < table.rows.length; i++) {
           var x =
             parseFloat(table.rows[i].cells[1].innerHTML.replace(",", ".")) / 8 +
-            250;
+            250 +
+            65;
           var y =
-            parseFloat(table.rows[i].cells[2].innerHTML.replace(",", ".")) / 8 +
-            250;
+            -parseFloat(table.rows[i].cells[2].innerHTML.replace(",", ".")) /
+              8 +
+            250 +
+            10; // --------------------------
           var radius = Number(
             parseFloat(table.rows[i].cells[3].innerHTML.replace(",", "."))
           );
@@ -224,8 +404,8 @@
                 tooltip.style.display = "block";
                 tooltip.style.left = event.pageX + "px";
                 tooltip.style.top = event.pageY + "px";
-                tooltip.innerHTML = `x: ${(x - 250) * 8}, y: ${
-                  (y - 250) * 8
+                tooltip.innerHTML = `x: ${(x - 250 - 65) * 8}, y: ${
+                  (y - 250 - 10) * -8
                 }, size: ${radius}, ellipticity: ${ellipticity}, angle: ${angle}`;
               };
             })(x, y, radius, ellipticity, angle)
@@ -355,6 +535,613 @@
 
         img.src = url;
       }
+
+      function drawLinesAndText() {
+        const svg = document.getElementById("mySVG");
+
+        // Helper function to create an SVG line element with x1 and x2 adjusted by subtracting 420
+        function createLine(x1, y1, x2, y2, stroke = "black", strokeWidth = 1) {
+          const line = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          line.setAttribute("x1", x1);
+          line.setAttribute("y1", y1);
+          line.setAttribute("x2", x2);
+          line.setAttribute("y2", y2);
+          line.setAttribute("stroke", stroke);
+          line.setAttribute("stroke-width", strokeWidth);
+          return line;
+        }
+
+        // Helper function to create an SVG text element
+        function createText(
+          x,
+          y,
+          textContent,
+          fontSize = 18,
+          fontFamily = "Arial",
+          anchor = "start"
+        ) {
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          text.setAttribute("x", x); // Adjust x coordinate by subtracting 420
+          text.setAttribute("y", y);
+          text.setAttribute("font-size", fontSize);
+          text.setAttribute("font-family", fontFamily);
+          text.setAttribute("text-anchor", anchor); // Set text alignment
+          text.textContent = textContent;
+          return text;
+        }
+
+        // Add lines and text similar to the provided C++ code
+        svg.appendChild(createLine(65, 10, 65, 510, "black", 2));
+        svg.appendChild(createText(30, 35, "Y"));
+        svg.appendChild(createLine(65, 510, 565, 510, "black", 2));
+        svg.appendChild(createText(545, 538, "X"));
+
+        let tempValue = -2000;
+        let point = 1;
+
+        // Draw X-axis markers and labels
+        for (let x = 65; x <= 565; x += 31.2) {
+          if (point % 2 === 0) {
+            svg.appendChild(createLine(x, 510, x, 514, "black", 2));
+          } else {
+            svg.appendChild(createLine(x, 510, x, 518, "black", 2));
+            if (tempValue !== 2000) {
+              if (tempValue <= -1000 || tempValue >= 1000) {
+                svg.appendChild(
+                  createText(x + 20, 538, tempValue, 18, "Arial", "end")
+                );
+              } else if (tempValue !== 0) {
+                svg.appendChild(
+                  createText(x + 15, 538, tempValue, 18, "Arial", "end")
+                );
+              }
+            }
+            tempValue += 500;
+          }
+          point++;
+        }
+
+        svg.appendChild(createText(319, 538, 0, 18, "Arial", "end"));
+
+        tempValue = -2000;
+        point = 1;
+
+        // Draw Y-axis markers and labels
+        for (let y = 510; y >= 10; y -= 31.2) {
+          if (point % 2 === 0) {
+            svg.appendChild(createLine(61, y, 65, y, "black", 2));
+          } else {
+            svg.appendChild(createLine(58, y, 65, y, "black", 2));
+            if (tempValue !== 2000) {
+              svg.appendChild(
+                createText(53, y + 6, tempValue, 18, "Arial", "end")
+              );
+            }
+            tempValue += 500;
+          }
+          point++;
+        }
+      }
+
+      /* function createCircle(cx, cy, r, stroke = "blue", strokeWidth = 2) {
+        const circle = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "circle"
+        );
+        circle.setAttribute("cx", cx);
+        circle.setAttribute("cy", cy);
+        circle.setAttribute("r", r);
+        circle.setAttribute("stroke", stroke);
+        circle.setAttribute("stroke-width", strokeWidth);
+        circle.setAttribute("fill", "none");
+        circle.classList.add("ring");
+        return circle;
+      }
+*/
+      function getDataFromTable() {
+        const data = [];
+        const rows = document.querySelectorAll("#editableTable tr");
+        rows.forEach((row, index) => {
+          if (index === 0) return; // Пропустити заголовок таблиці
+          const cells = row.querySelectorAll("td");
+          const x = parseFloat(cells[1].textContent) / 8 + 250 + 65;
+          const y = parseFloat(cells[2].textContent) / -8 + 250 + 10;
+          data.push({ x, y });
+        });
+
+        return data;
+      }
+
+      function calculateClusterRadius() {
+        const centerX =
+          parseFloat(document.getElementById("centerX").value) / 8 + 250 + 65;
+        const centerY =
+          parseFloat(document.getElementById("centerY").value) / -8 + 250 + 10;
+
+        const data = getDataFromTable();
+        function distance(x1, y1, x2, y2) {
+          return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+        }
+        let maxDistance = 0;
+        data.forEach((point) => {
+          const adjustedX = point.x;
+          const adjustedY = point.y;
+          const dist = distance(centerX, centerY, adjustedX, adjustedY);
+
+          if (dist > maxDistance) {
+            maxDistance = dist;
+          }
+        });
+        return maxDistance * 8 + 0.0001;
+      }
+
+      function analyzeConcentration() {
+        document.getElementById("ringDistance").value =
+          document.getElementById("Radius").value *
+          document.getElementById("ringWith").value;
+        document.getElementById("numRings").value = Math.ceil(
+          document.getElementById("Radius").value /
+            document.getElementById("ringDistance").value
+        );
+
+        drawEllipsesRings();
+        const numRings = parseInt(document.getElementById("numRings").value);
+        const ringDistance =
+          parseFloat(document.getElementById("ringDistance").value) / 8;
+        const centerX =
+          parseFloat(document.getElementById("centerX").value) / 8 + 250 + 65;
+        const centerY =
+          parseFloat(document.getElementById("centerY").value) / -8 + 250 + 10;
+
+        const data = getDataFromTable();
+
+        function distance(x1, y1, x2, y2) {
+          return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+        }
+
+        const rings = Array(numRings).fill(0);
+        const svg = document.getElementById("mySVG");
+        const previousRings = svg.querySelectorAll(".ring");
+        previousRings.forEach((ring) => ring.remove());
+
+        data.forEach((point) => {
+          const adjustedX = point.x;
+          const adjustedY = point.y;
+          const dist = distance(centerX, centerY, adjustedX, adjustedY);
+          rings.forEach((_, index) => {
+            const innerRadius = index * ringDistance;
+            const outerRadius = (index + 1) * ringDistance;
+            if (dist >= innerRadius && dist < outerRadius) {
+              rings[index]++;
+              const ellipse = createCircle(point.x, point.y, 3, "blue");
+              ellipse.setAttribute("class", "ring");
+              svg.appendChild(ellipse);
+            }
+          });
+        });
+
+        const totalArea = Math.PI * (numRings * ringDistance) ** 2;
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = "";
+        rings.forEach((count, index) => {
+          const innerRadius = index * ringDistance;
+          const outerRadius = (index + 1) * ringDistance;
+          const ringArea = calculateRingArea(innerRadius, outerRadius);
+          const ringFraction = ringArea / totalArea;
+          const totalGalaxies = data.length;
+          resultsDiv.innerHTML += `Кільце ${
+            index + 1
+          }: ${count} входжень, Площа: ${ringArea.toFixed(
+            2
+          )} квадратних одиниць, Доля площі: ${ringFraction.toFixed(
+            4
+          )}, Density: ${count / totalGalaxies / ringFraction}<br>`;
+        });
+
+        for (let i = 1; i <= numRings; i++) {
+          const circle = createCircle(centerX, centerY, i * ringDistance);
+          svg.appendChild(circle);
+        }
+        const totalGalaxies = data.length;
+        const histogramData = rings.map((count, index) => {
+          const ringArea =
+            Math.PI * ((index + 1) ** 2 - index ** 2) * ringDistance ** 2;
+          const ringFraction = ringArea / totalArea;
+          const density = count / totalGalaxies / ringFraction;
+          //console.log(count, totalGalaxies, ringFraction);
+          //  resultsDiv.innerHTML += `Кільце ${index + 1}: ${density} Density<br>`;
+
+          return density;
+        });
+
+        drawHistogram(histogramData);
+      }
+
+      // Function to draw histogram with axes
+      function drawHistogram(data) {
+        const svg = document.getElementById("histogramSVG");
+        svg.innerHTML = "";
+
+        const width = svg.clientWidth;
+        const height = svg.clientHeight;
+        const margin = 50;
+        const barWidth = (width - margin * 2) / data.length;
+
+        const maxDensity = Math.max(...data);
+
+        // Create X and Y axes
+        const xAxis = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "line"
+        );
+        xAxis.setAttribute("x1", margin);
+        xAxis.setAttribute("y1", height - margin);
+        xAxis.setAttribute("x2", width - margin);
+        xAxis.setAttribute("y2", height - margin);
+        xAxis.setAttribute("stroke", "black");
+        xAxis.setAttribute("stroke-width", "2");
+        svg.appendChild(xAxis);
+
+        const yAxis = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "line"
+        );
+        yAxis.setAttribute("x1", margin);
+        yAxis.setAttribute("y1", margin);
+        yAxis.setAttribute("x2", margin);
+        yAxis.setAttribute("y2", height - margin);
+        yAxis.setAttribute("stroke", "black");
+        yAxis.setAttribute("stroke-width", "2");
+        svg.appendChild(yAxis);
+
+        // Create X axis labels
+        data.forEach((_, index) => {
+          const x = margin + index * barWidth + barWidth / 2;
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          text.setAttribute("x", x);
+          text.setAttribute("y", height - margin + 25);
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("font-size", "18");
+          text.setAttribute("font-family", "Arial");
+          text.textContent = `${index + 1}`;
+          svg.appendChild(text);
+        });
+
+        // Create Y axis labels
+        const yAxisSteps = 5;
+        for (let i = 0; i <= yAxisSteps; i++) {
+          const y = height - margin - ((height - margin * 2) / yAxisSteps) * i;
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          text.setAttribute("x", margin - 10);
+          text.setAttribute("y", y + 3);
+          text.setAttribute("text-anchor", "end");
+          text.setAttribute("font-size", "18");
+          text.setAttribute("font-family", "Arial");
+          text.textContent = ((maxDensity * i) / yAxisSteps).toFixed(2);
+          svg.appendChild(text);
+        }
+
+        // Create bars
+        data.forEach((density, index) => {
+          const barHeight = (density / maxDensity) * (height - margin * 2);
+          const rect = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "rect"
+          );
+          rect.setAttribute("x", margin + index * barWidth);
+          rect.setAttribute("y", height - margin - barHeight);
+          rect.setAttribute("width", barWidth);
+          rect.setAttribute("height", barHeight);
+          rect.setAttribute("fill", "#d3d3d3");
+          rect.setAttribute("stroke", "black");
+          rect.setAttribute("stroke-width", "1");
+          svg.appendChild(rect);
+        });
+
+        // Add axis labels
+        const xAxisLabel = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "text"
+        );
+        xAxisLabel.setAttribute("x", width / 2);
+        xAxisLabel.setAttribute("y", height - 5);
+        xAxisLabel.setAttribute("text-anchor", "middle");
+        xAxisLabel.setAttribute("font-size", "18");
+        xAxisLabel.setAttribute("font-family", "Arial");
+        xAxisLabel.textContent = "R";
+        svg.appendChild(xAxisLabel);
+
+        const yAxisLabel = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "text"
+        );
+        yAxisLabel.setAttribute("x", -height / 2);
+        yAxisLabel.setAttribute("y", 15);
+        yAxisLabel.setAttribute("text-anchor", "middle");
+        yAxisLabel.setAttribute("font-size", "18");
+        yAxisLabel.setAttribute("font-family", "Arial");
+        yAxisLabel.setAttribute("transform", "rotate(-90)");
+        yAxisLabel.textContent = "f'";
+        svg.appendChild(yAxisLabel);
+      }
+
+      function calculateRingArea(innerRadius, outerRadius) {
+        const pi = Math.PI;
+        const outerArea = pi * outerRadius ** 2;
+        const innerArea = pi * innerRadius ** 2;
+        return outerArea - innerArea;
+      }
+
+      function findHighestDensityCenter(
+        centerX,
+        centerY,
+        ringDistance,
+        searchRadius,
+        data
+      ) {
+        let maxDensity = 0;
+        let bestCenter = { x: centerX, y: centerY };
+
+        for (let dx = -searchRadius; dx <= searchRadius; dx++) {
+          for (let dy = -searchRadius; dy <= searchRadius; dy++) {
+            const currentCenterX = centerX + dx;
+            const currentCenterY = centerY + dy;
+            let count = 0;
+
+            data.forEach((point) => {
+              const dist = Math.sqrt(
+                (currentCenterX - point.x) ** 2 +
+                  (currentCenterY - point.y) ** 2
+              );
+
+              if (dist < ringDistance) {
+                count++;
+              }
+            });
+
+            if (count > maxDensity) {
+              maxDensity = count;
+              bestCenter = { x: currentCenterX, y: currentCenterY };
+            }
+          }
+        }
+
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML += `<br>Центр з найбільшою густиною: (${
+          (bestCenter.x - 250 - 65) * 8
+        }, ${(bestCenter.y - 250 - 10) * -8}) з ${maxDensity} входжень<br>`;
+        //(x - 250 - 65) * 8}, y: ${   (y - 250 - 10) * -8
+        // Draw the best center for visualization
+        document.getElementById("centerX").value =
+          (bestCenter.x - 250 - 65) * 8;
+        document.getElementById("centerY").value =
+          (bestCenter.y - 250 - 10) * -8;
+        const svg = document.getElementById("mySVG");
+        const bestCenterCircle = createCircle(
+          bestCenter.x,
+          bestCenter.y,
+          5,
+          "red"
+        );
+        svg.appendChild(bestCenterCircle);
+
+        // Draw ellipses within the ring for the highest density center
+        data.forEach((point) => {
+          const dist = Math.sqrt(
+            (bestCenter.x - point.x) ** 2 + (bestCenter.y - point.y) ** 2
+          );
+
+          if (dist < ringDistance) {
+            const ellipse = createCircle(point.x, point.y, 3, "green", "black");
+            svg.appendChild(ellipse);
+          }
+        });
+
+        // Draw the ring for visualization
+        const ring = createCircle(
+          bestCenter.x,
+          bestCenter.y,
+          ringDistance,
+          "red"
+        );
+
+        //----------------------------------
+        ring.setAttribute("fill", "none");
+        svg.appendChild(ring);
+      }
+
+      // Dummy function for creating circles (to be implemented)
+      function createCircle(
+        cx,
+        cy,
+        r,
+        color = "rgba(0, 0, 0, 0.15)",
+        fillColor = "none"
+      ) {
+        const circle = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "circle"
+        );
+        circle.setAttribute("cx", cx);
+        circle.setAttribute("cy", cy);
+        circle.setAttribute("r", r);
+        circle.setAttribute("stroke", color);
+        circle.setAttribute("stroke-width", 1);
+        circle.setAttribute("fill", fillColor);
+        return circle;
+      }
+
+      function toggleRings() {
+        const showRings = document.getElementById("showRings").checked;
+        const rings = document.querySelectorAll(".ring");
+        rings.forEach((ring) => {
+          ring.style.display = showRings ? "block" : "none";
+        });
+      }
+
+      // Function to draw ellipses on the SVG based on table data
+      function drawEllipsesRings() {
+        var svg = document.getElementById("mySVG");
+        var table = document.getElementById("editableTable");
+
+        svg.innerHTML = ""; // Clear the SVG
+        drawLinesAndText();
+        for (var i = 1; i < table.rows.length; i++) {
+          var x =
+            parseFloat(table.rows[i].cells[1].innerHTML.replace(",", ".")) / 8 +
+            250 +
+            65;
+          var y =
+            -parseFloat(table.rows[i].cells[2].innerHTML.replace(",", ".")) /
+              8 +
+            250 +
+            10; // --------------------------
+          var radius = 3;
+          var ellipticity = 0;
+          var angle = parseFloat(
+            table.rows[i].cells[5].innerHTML.replace(",", ".")
+          );
+          var A =
+            radius /
+            Math.pow(1 - 2 * ellipticity + ellipticity * ellipticity, 1 / 4);
+          var B = (radius * radius) / A;
+
+          var ellipse = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "ellipse"
+          );
+          ellipse.setAttribute("cx", x);
+          ellipse.setAttribute("cy", y);
+          ellipse.setAttribute("rx", A);
+          ellipse.setAttribute("ry", B);
+          ellipse.setAttribute("fill", "rgba(255,0,0,0.8)");
+          ellipse.setAttribute("stroke", "black");
+          ellipse.setAttribute("transform", `rotate(${angle}, ${x}, ${y})`);
+          ellipse.setAttribute("data-row-index", i);
+
+          // Add event listener to display tooltip when mouse hovers over ellipse
+          ellipse.addEventListener(
+            "mouseover",
+            (function (x, y, radius, ellipticity, angle) {
+              return function (event) {
+                this.setAttribute("stroke", "black");
+                this.setAttribute("stroke-width", "3");
+                var tooltip = document.getElementById("tooltip");
+                tooltip.style.display = "block";
+                tooltip.style.left = event.pageX + "px";
+                tooltip.style.top = event.pageY + "px";
+                tooltip.innerHTML = `x: ${(x - 250 - 65) * 8}, y: ${
+                  (y - 250 - 10) * -8
+                }, size: ${radius}, ellipticity: ${ellipticity}, angle: ${angle}`;
+              };
+            })(x, y, radius, ellipticity, angle)
+          );
+
+          // Remove tooltip and highlighting when mouse leaves ellipse
+          ellipse.addEventListener("mouseout", function () {
+            this.setAttribute("stroke", "black");
+            this.setAttribute("stroke-width", "1");
+            var tooltip = document.getElementById("tooltip");
+            tooltip.style.display = "none";
+          });
+
+          // Add event listener to highlight table row when ellipse is clicked
+          ellipse.addEventListener("click", function () {
+            // Remove highlight from any previously highlighted row
+            var highlightedRow = document.querySelector(".highlight");
+            if (highlightedRow) {
+              highlightedRow.classList.remove("highlight");
+            }
+
+            // Remove highlight from any previously highlighted ellipse
+            var highlightedEllipse =
+              document.querySelector(".highlight-ellipse");
+            if (highlightedEllipse) {
+              highlightedEllipse.classList.remove("highlight-ellipse");
+              highlightedEllipse.setAttribute("stroke", "black");
+              highlightedEllipse.setAttribute("stroke-width", "1");
+            }
+
+            // Highlight the corresponding row in the table
+            var rowIndex = this.getAttribute("data-row-index");
+            table.rows[rowIndex].classList.add("highlight");
+            // Highlight the corresponding ellipse
+            this.classList.add("highlight-ellipse");
+            this.setAttribute("stroke", "red");
+            this.setAttribute("stroke-width", "2");
+          });
+
+          svg.appendChild(ellipse);
+        }
+
+        // Add event listener to highlight ellipse when table row is clicked
+        Array.from(table.rows).forEach((row, index) => {
+          row.addEventListener("click", function () {
+            // Remove highlight from any previously highlighted ellipse
+            var highlightedEllipse =
+              document.querySelector(".highlight-ellipse");
+            if (highlightedEllipse) {
+              highlightedEllipse.classList.remove("highlight-ellipse");
+              highlightedEllipse.setAttribute("stroke", "black");
+              highlightedEllipse.setAttribute("stroke-width", "1");
+            }
+
+            // Remove highlight from any previously highlighted row
+            var highlightedRow = document.querySelector(".highlight");
+            if (highlightedRow) {
+              highlightedRow.classList.remove("highlight");
+            }
+
+            // Highlight the corresponding ellipse
+            var ellipse = svg.querySelector(
+              `ellipse[data-row-index="${index}"]`
+            );
+            if (ellipse) {
+              ellipse.classList.add("highlight-ellipse");
+              ellipse.setAttribute("stroke", "red");
+              ellipse.setAttribute("stroke-width", "2");
+            }
+
+            // Highlight the clicked row
+            this.classList.add("highlight");
+          });
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        drawLinesAndText();
+
+        // Налаштування вкладок
+        const tabLinks = document.querySelectorAll(".tab-link");
+        const tabContents = document.querySelectorAll(".tab-content");
+
+        tabLinks.forEach((link) => {
+          link.addEventListener("click", function () {
+            tabLinks.forEach((item) => item.classList.remove("active"));
+            tabContents.forEach((item) => item.classList.remove("active"));
+
+            link.classList.add("active");
+            const tabId = link.getAttribute("data-tab");
+            document.getElementById(tabId).classList.add("active");
+          });
+        });
+
+        tabLinks[0].classList.add("active");
+        tabContents[0].classList.add("active");
+      });
+      // Call the function to draw lines and text
     </script>
   </body>
 </html>
