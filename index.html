@@ -5,78 +5,134 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cluster Curtographi 2.0</title>
     <style>
+      :root {
+        --primary-color: #3f4b59;
+        --secondary-color: #5e92bf;
+        --accent-color: #d9c5b4;
+        --background-color: #f4f4f4;
+        --border-color: #a4a4a4;
+        --text-color: #333;
+      }
+
       body {
         display: flex;
         flex-direction: column;
         margin: 0;
         height: 100vh;
         overflow: hidden;
+        font-family: Arial, sans-serif;
+        color: var(--text-color);
+        background-color: var(--background-color);
       }
+
       header {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
-        background-color: #f4f4f4;
+        background-color: var(--primary-color);
         z-index: 1000;
         display: flex;
-        justify-content: center;
         padding: 10px;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        flex-direction: row;
+        align-items: center;
       }
+
       header div {
         display: flex;
         gap: 10px;
+        font-size: 14px;
       }
+
+      header button,
+      header input {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      header button {
+        background-color: var(--secondary-color);
+        color: white;
+      }
+
+      header button:hover {
+        background-color: var(--accent-color);
+        color: black;
+      }
+
+      header input[type="file"] {
+        background-color: white;
+        color: var(--primary-color);
+      }
+
       main {
         display: flex;
         flex-grow: 1;
-        margin-top: 70px; /* Adjust based on header height */
+        margin-top: 60px; /* Adjust based on header height */
         overflow: hidden;
       }
+
       aside {
         flex-basis: 30%;
         max-width: 30%;
         overflow-y: auto;
-        border-right: 1px solid #ddd;
+        border-right: 1px solid var(--border-color);
+        background-color: white;
       }
-      nav {
-        flex-basis: 30%;
 
+      nav {
+        flex-basis: 25%;
+        display: flex;
+        margin-left: auto;
         overflow-y: auto;
-        border: 1px solid #ddd;
-        margin-left: 15px;
-        background-color: #cecece;
+        border-left: 1px solid var(--border-color);
+        background-color: var(--background-color);
       }
+
       content {
         overflow-y: auto;
+        flex-grow: 1;
+        padding: 10px;
       }
+
       #editableTable {
         width: 100%;
         border-collapse: collapse;
       }
+
       #editableTable th,
       #editableTable td {
-        border: 1px solid black;
-        padding: 5px 15px;
-        text-align: center; /* Center text in table cells */
+        border: 1px solid var(--border-color);
+        padding: 8px;
+        text-align: center;
       }
+
       #editableTable th {
-        background-color: #f0f0f0;
-        font-weight: bold;
-        border: 2px solid black; /* Bold border for header cells */
+        background-color: var(--primary-color);
+        color: white;
       }
+
       #editableTable td.number-cell {
         background-color: #d3d3d3;
       }
+
       #mySVG,
       #histogramSVG {
-        border: 1px solid black;
-        margin: 0 1%;
+        border: 1px solid var(--border-color);
+        margin: 10px 0;
+
+        height: auto;
       }
+
       .highlight {
-        background-color: rgb(129, 169, 234);
+        background-color: #d9c5b4;
       }
+
       .tooltip {
         position: absolute;
         background-color: white;
@@ -86,6 +142,7 @@
         pointer-events: none;
         z-index: 10;
       }
+
       .highlight-ellipse {
         fill: green;
         stroke-width: 1 !important;
@@ -95,45 +152,54 @@
         cursor: pointer;
       }
 
-      /* Стилі для навігаційних вкладок */
-
+      /* Styles for navigation tabs */
       nav .tabs {
         list-style: none;
         margin: 0;
         padding: 0;
         display: flex;
+        flex-direction: row;
+        width: 100%;
+        align-items: center;
+        gap: 4px;
+        background: #3f4b59;
       }
 
       nav .tab-link {
-        padding: 5px 5px;
+        padding: 10px;
         cursor: pointer;
-        color: rgb(0, 0, 0);
+        color: white;
         text-align: center;
-        border: 1px solid black;
+        border: 1px solid var(--border-color);
+        background: var(--secondary-color);
+        border: none;
+        border-radius: 4px;
       }
 
       nav .tab-link:hover {
-        background-color: #575757;
+        background-color: var(--accent-color);
+        color: black;
       }
 
       nav .tab-link.active {
-        background-color: #575757;
-        color: white;
+        background-color: #b2a193;
+        color: black;
       }
 
-      /* Стилі для вмісту вкладок */
+      /* Styles for tab content */
       .tab-content {
         display: none;
         padding: 20px;
-        background-color: #f1f1f1;
-        border: 1px solid #ccc;
-        border-top: none; /* Прибрати верхній бордер для контенту, щоб він зливався з вкладками */
-        margin-top: -1px; /* Прибрати межу між вкладками і контентом */
+        background-color: white;
+        border: 1px solid var(--border-color);
+        border-top: none;
+        margin-top: -1px;
       }
 
       .tab-content.active {
         display: block;
       }
+
       #tab-1 label {
         display: block;
         margin-top: 10px;
@@ -149,15 +215,16 @@
         stroke: blue;
         stroke-width: 1;
       }
+
       @media (max-width: 800px) {
         main {
           flex-direction: column;
         }
+
         aside,
         nav {
           max-width: 100%;
           margin-left: 0;
-          background-color: #333;
           overflow: hidden;
         }
       }
@@ -174,10 +241,10 @@
       </div>
       <nav>
         <ul class="tabs">
-          <li class="tab-link" data-tab="tab-1">C-I-O</li>
-          <li class="tab-link" data-tab="tab-2">Вкладка 2</li>
-          <li class="tab-link" data-tab="tab-3">Вкладка 3</li>
-          <li class="tab-link" data-tab="tab-4">Вкладка 4</li>
+          <li class="tab-link active" data-tab="tab-1">C-I-O</li>
+          <li class="tab-link" data-tab="tab-2">L-F</li>
+          <li class="tab-link" data-tab="tab-3">LHB</li>
+          <li class="tab-link" data-tab="tab-4">E</li>
           <li class="tab-link" data-tab="tab-5">Вкладка 5</li>
         </ul>
       </nav>
@@ -205,13 +272,10 @@
 
       <content>
         <svg id="mySVG" width="575" height="545"></svg>
-
-        <div>
-          <svg id="histogramSVG" width="575" height="545"></svg>
-        </div>
+        <svg id="histogramSVG" width="575" height="545"></svg>
       </content>
       <nav>
-        <div id="tab-1" class="tab-content">
+        <div id="tab-1" class="tab-content active">
           C-I-O
           <label for="Radius">Радіус скупчення:</label>
           <input type="number" id="Radius" value="calculateClusterRadius()" />
@@ -246,12 +310,12 @@
           </button>
           <button
             onclick='findHighestDensityCenter(
-          250 + 65,
-          250 + 10,
-          parseFloat(document.getElementById("ringDistance").value) / 8,
-          document.getElementById("Radius").value,
-          getDataFromTable()
-        )'
+                    250 + 65,
+                    250 + 10,
+                    parseFloat(document.getElementById("ringDistance").value) / 8,
+                    document.getElementById("Radius").value,
+                    getDataFromTable()
+                )'
           >
             Автоматичний пошук концентрації
           </button>
@@ -268,28 +332,19 @@
 
     <script>
       // -----Аналіз скупчення-----
-      document.addEventListener("DOMContentLoaded", function () {
-        // Отримати всі посилання на вкладки і вміст вкладок
-        const tabLinks = document.querySelectorAll(".tab-link");
-        const tabContents = document.querySelectorAll(".tab-content");
-
-        // Додати подію натискання на всі посилання вкладок
-        tabLinks.forEach((link) => {
-          link.addEventListener("click", function () {
-            // Видалити клас active з усіх посилань і вмісту
-            tabLinks.forEach((item) => item.classList.remove("active"));
-            tabContents.forEach((item) => item.classList.remove("active"));
-
-            // Додати клас active до поточного посилання і відповідного вмісту
-            link.classList.add("active");
-            const tabId = link.getAttribute("data-tab");
-            document.getElementById(tabId).classList.add("active");
+      document.querySelectorAll(".tab-link").forEach((tab) => {
+        tab.addEventListener("click", function () {
+          document.querySelectorAll(".tab-link").forEach((link) => {
+            link.classList.remove("active");
           });
+          document.querySelectorAll(".tab-content").forEach((content) => {
+            content.classList.remove("active");
+          });
+          this.classList.add("active");
+          document
+            .getElementById(this.getAttribute("data-tab"))
+            .classList.add("active");
         });
-
-        // Активувати першу вкладку за замовчуванням
-        tabLinks[0].classList.add("active");
-        tabContents[0].classList.add("active");
       });
       // ----------------
 
