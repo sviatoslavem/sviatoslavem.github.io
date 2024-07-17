@@ -217,15 +217,17 @@
       }
 
       @media (max-width: 800px) {
-        main {
-          flex-direction: column;
+        main,
+        header {
+          display: block;
+          overflow: auto;
         }
 
         aside,
         nav {
           max-width: 100%;
           margin-left: 0;
-          overflow: hidden;
+          overflow: auto;
         }
       }
     </style>
@@ -271,8 +273,16 @@
       </aside>
 
       <content>
-        <svg id="mySVG" width="575" height="545"></svg>
-        <svg id="histogramSVG" width="575" height="545"></svg>
+        <svg
+          id="mySVG"
+          viewBox="0 0 575 545"
+          preserveAspectRatio="xMidYMid meet"
+        ></svg>
+        <svg
+          id="histogramSVG"
+          viewBox="0 0 575 545"
+          preserveAspectRatio="xMidYMid meet"
+        ></svg>
       </content>
       <nav>
         <div id="tab-1" class="tab-content active">
@@ -850,9 +860,9 @@
           const ringArea = calculateRingArea(innerRadius, outerRadius);
           const ringFraction = ringArea / totalArea;
           const totalGalaxies = data.length;
-          resultsDiv.innerHTML += `Кільце ${
+          resultsDiv.innerHTML += `<br><b>Кільце ${
             index + 1
-          }: ${count} входжень, Площа: ${ringArea.toFixed(
+          }:</b> ${count} входжень, Площа: ${ringArea.toFixed(
             2
           )} квадратних одиниць, Доля площі: ${ringFraction.toFixed(
             4
@@ -880,8 +890,8 @@
         const svg = document.getElementById("histogramSVG");
         svg.innerHTML = "";
 
-        const width = svg.clientWidth;
-        const height = svg.clientHeight;
+        const width = 575;
+        const height = 545;
         const margin = 55;
         const barWidth = (width - margin * 2) / data.length;
 
