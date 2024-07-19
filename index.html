@@ -38,12 +38,34 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         flex-direction: row;
         align-items: center;
+        justify-content: space-between;
       }
 
-      header div {
+      .header-content {
         display: flex;
         gap: 10px;
         font-size: 14px;
+      }
+
+      .header-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: space-evenly;
+      }
+
+      .hamburger {
+        display: none;
+        flex-direction: column;
+        justify-content: space-around;
+        width: 25px;
+        height: 25px;
+        cursor: pointer;
+      }
+
+      .hamburger div {
+        width: 25px;
+        height: 3px;
+        background-color: white;
       }
 
       header button,
@@ -125,7 +147,6 @@
       #histogramSVG {
         border: 1px solid var(--border-color);
         margin: 10px 0;
-
         height: auto;
       }
 
@@ -170,7 +191,6 @@
         cursor: pointer;
         color: white;
         text-align: center;
-        border: 1px solid var(--border-color);
         background: var(--secondary-color);
         border: none;
         border-radius: 4px;
@@ -217,30 +237,78 @@
       }
 
       @media (max-width: 800px) {
-        main,
         header {
-          display: block;
+          flex-wrap: wrap;
+          height: auto;
+          padding: 10px;
+        }
+
+        .header-content,
+        nav ul.tabs {
+          display: none;
+        }
+
+        .hamburger {
+          display: flex;
+          margin: 10px;
+        }
+
+        .show-content .header-content,
+        .show-content nav ul.tabs {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          width: 100%;
+          align-items: stretch;
+        }
+
+        main {
+          flex-direction: column;
           overflow: auto;
         }
 
-        aside,
-        nav {
+        nav,
+        content,
+        aside {
+          flex-basis: 100%;
           max-width: 100%;
-          margin-left: 0;
-          overflow: auto;
+          order: initial;
+          flex-grow: 0;
+          display: inline-table;
+        }
+
+        nav {
+          order: 1;
+          margin-top: 10px;
+        }
+
+        content {
+          order: 2;
+        }
+
+        aside {
+          order: 3;
         }
       }
     </style>
   </head>
   <body>
     <header>
-      <div>
-        <input type="file" id="fileInput" accept=".txt" />
-        <button onclick="handleFile()">Load Data</button>
-        <button onclick="drawEllipses()">CreateMap</button>
-        <button onclick="saveBMP()">Save Map</button>
-        <button onclick="histogramSVGsaveBMP()">Save as D.H.</button>
+      <div class="hamburger" onclick="toggleHeaderContent()">
+        <div></div>
+        <div></div>
+        <div></div>
       </div>
+      <div class="header-content">
+        <input type="file" id="fileInput" accept=".txt" />
+        <div class="header-buttons">
+          <button onclick="handleFile()">Load Data</button>
+          <button onclick="drawEllipses()">CreateMap</button>
+          <button onclick="saveBMP()">Save Map</button>
+          <button onclick="histogramSVGsaveBMP()">Save as D.H.</button>
+        </div>
+      </div>
+
       <nav>
         <ul class="tabs">
           <li class="tab-link active" data-tab="tab-1">C-I-O</li>
@@ -341,7 +409,14 @@
     <div id="tooltip" class="tooltip"></div>
 
     <script>
-      // -----Аналіз скупчення-----
+      function toggleHeaderContent() {
+        document.querySelector("header").classList.toggle("show-content");
+      }
+
+      function toggleTabs() {
+        document.querySelector("nav").classList.toggle("show-content");
+      }
+
       document.querySelectorAll(".tab-link").forEach((tab) => {
         tab.addEventListener("click", function () {
           document.querySelectorAll(".tab-link").forEach((link) => {
