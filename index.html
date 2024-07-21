@@ -545,12 +545,14 @@
         reader.onload = function (e) {
           var dataArray = e.target.result.split("\n");
 
-          // Create table with the number of rows equal to the number of lines in the file
-          createEditableTable(dataArray.length, 7); // Assuming 7 columns based on header
+          // Create table with the number of rows equal to the number of lines in the file minus any empty lines at the end
+          var nonEmptyLines = dataArray.filter((line) => line.trim() !== "");
+          createEditableTable(nonEmptyLines.length, 7); // Assuming 7 columns based on header
 
-          for (var i = 0; i < dataArray.length; i++) {
+          for (var i = 0; i < nonEmptyLines.length; i++) {
             var row = table.rows[i + 1]; // Adjust for header row
-            var rowData = dataArray[i].split("\t"); // Assuming tab-separated data
+            // Split data using regular expression to handle both tabs and multiple spaces
+            var rowData = nonEmptyLines[i].trim().split(/\s+/);
 
             for (var j = 0; j < rowData.length; j++) {
               var cell = row.cells[j + 1]; // Adjust for number cell
@@ -559,16 +561,20 @@
           }
 
           drawEllipses(); // Draw ellipses after loading data
-          //----
-          document.getElementById("Radius").value = calculateClusterRadius();
-          document.getElementById("ringDistance").value =
-            document.getElementById("Radius").value *
-            document.getElementById("ringWith").value;
-          document.getElementById("numRings").value = Math.ceil(
-            document.getElementById("Radius").value /
-              document.getElementById("ringDistance").value
-          );
-          //----
+
+          // Calculate and set values for Radius, ringDistance, and numRings
+          var radius = calculateClusterRadius();
+          var ringWidth = document.getElementById("ringWith").value;
+          var ringDistance = radius * ringWidth;
+          var numRings = Math.ceil(radius / ringDistance);
+
+          document.getElementById("Radius").value = radius;
+          document.getElementById("ringDistance").value = ringDistance;
+          document.getElementById("numRings").value = numRings;
+          document.getElementById("centerX").value = 0;
+          document.getElementById("centerY").value = 0;
+          var svg = document.getElementById("histogramSVG");
+          svg.innerHTML = ""; // Clear the SVG
         };
 
         reader.readAsText(file);
