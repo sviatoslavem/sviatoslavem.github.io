@@ -271,6 +271,19 @@
       #resultsPA {
         border-top: 1px solid #333;
       }
+      th {
+        cursor: pointer;
+      }
+      .sort-indicator {
+        font-size: 14px;
+
+        margin: 0 8px;
+
+        position: absolute;
+        scale: 1.6;
+        font-family: unset;
+      }
+
       @media (max-width: 800px) {
         header {
           flex-wrap: wrap;
@@ -360,13 +373,27 @@
         <table id="editableTable">
           <thead>
             <tr>
-              <th>№</th>
-              <th>X</th>
-              <th>Y</th>
-              <th>m'</th>
-              <th>E</th>
-              <th>PA</th>
-              <th>BG</th>
+              <th onclick="sortTable(0)">
+                № <span class="sort-indicator"></span>
+              </th>
+              <th onclick="sortTable(1)">
+                X <span class="sort-indicator"></span>
+              </th>
+              <th onclick="sortTable(2)">
+                Y <span class="sort-indicator"></span>
+              </th>
+              <th onclick="sortTable(3)">
+                m' <span class="sort-indicator"></span>
+              </th>
+              <th onclick="sortTable(4)">
+                E <span class="sort-indicator"></span>
+              </th>
+              <th onclick="sortTable(5)">
+                PA <span class="sort-indicator"></span>
+              </th>
+              <th onclick="sortTable(6)">
+                BG <span class="sort-indicator"></span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -448,7 +475,14 @@
         </div>
         <div id="tab-2" class="tab-content">Вміст вкладки 2</div>
         <div id="tab-3" class="tab-content">Вміст вкладки 3</div>
-        <div id="tab-4" class="tab-content">Вміст вкладки 4</div>
+        <div id="tab-4" class="tab-content">
+          <b>E</b>
+          <br />
+          <br />
+          <button onclick="drawHistogramEllipticities(getDataFromTable(), 10)">
+            Аналізувати E
+          </button>
+        </div>
         <div id="tab-5" class="tab-content">
           <b>Аналіз кута PA</b>
           <br />
@@ -516,7 +550,74 @@
         });
       });
       // ----------------
+      function sortTable(columnIndex) {
+        var table = document.getElementById("editableTable");
+        var rows = table.rows;
+        var switching = true;
+        var shouldSwitch;
+        var i;
+        var x, y;
+        var direction = "ascending";
+        var switchCount = 0;
 
+        // Remove existing sort indicators
+        var indicators = table.querySelectorAll(".sort-indicator");
+        indicators.forEach(function (indicator) {
+          indicator.textContent = "";
+        });
+
+        while (switching) {
+          switching = false;
+          var rowsArray = Array.from(rows).slice(1);
+
+          for (i = 0; i < rowsArray.length - 1; i++) {
+            shouldSwitch = false;
+            x = rowsArray[i].getElementsByTagName("TD")[columnIndex];
+            y = rowsArray[i + 1].getElementsByTagName("TD")[columnIndex];
+
+            if (direction == "ascending") {
+              if (
+                parseFloat(x.innerHTML.replace(",", ".")) >
+                parseFloat(y.innerHTML.replace(",", "."))
+              ) {
+                shouldSwitch = true;
+                break;
+              }
+            } else if (direction == "descending") {
+              if (
+                parseFloat(x.innerHTML.replace(",", ".")) <
+                parseFloat(y.innerHTML.replace(",", "."))
+              ) {
+                shouldSwitch = true;
+                break;
+              }
+            }
+          }
+
+          if (shouldSwitch) {
+            rowsArray[i].parentNode.insertBefore(
+              rowsArray[i + 1],
+              rowsArray[i]
+            );
+            switching = true;
+            switchCount++;
+          } else {
+            if (switchCount == 0 && direction == "ascending") {
+              direction = "descending";
+              switching = true;
+            }
+          }
+        }
+
+        // Add sort indicator
+        var header = table.getElementsByTagName("TH")[columnIndex];
+        var indicator = header.querySelector(".sort-indicator");
+        if (direction == "ascending") {
+          indicator.textContent = "↑";
+        } else {
+          indicator.textContent = "↓";
+        }
+      }
       // Function to create an editable table
       function createEditableTable(rows, cols) {
         var tableBody = document.querySelector("#editableTable tbody");
@@ -580,138 +681,6 @@
         reader.readAsText(file);
       }
 
-      // Function to draw ellipses on the SVG based on table data
-      function drawEllipses() {
-        var svg = document.getElementById("mySVG");
-        var table = document.getElementById("editableTable");
-
-        svg.innerHTML = ""; // Clear the SVG
-        drawLinesAndText();
-        for (var i = 1; i < table.rows.length; i++) {
-          var x =
-            parseFloat(table.rows[i].cells[1].innerHTML.replace(",", ".")) / 8 +
-            250 +
-            65;
-          var y =
-            -parseFloat(table.rows[i].cells[2].innerHTML.replace(",", ".")) /
-              8 +
-            250 +
-            10; // --------------------------
-          var radius = Number(
-            parseFloat(table.rows[i].cells[3].innerHTML.replace(",", "."))
-          );
-          var ellipticity = Number(
-            parseFloat(table.rows[i].cells[4].innerHTML.replace(",", "."))
-          );
-          var angle = parseFloat(
-            table.rows[i].cells[5].innerHTML.replace(",", ".")
-          );
-          var A =
-            radius /
-            Math.pow(1 - 2 * ellipticity + ellipticity * ellipticity, 1 / 4);
-          var B = (radius * radius) / A;
-
-          var ellipse = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "ellipse"
-          );
-          ellipse.setAttribute("cx", x);
-          ellipse.setAttribute("cy", y);
-          ellipse.setAttribute("rx", A);
-          ellipse.setAttribute("ry", B);
-          ellipse.setAttribute("fill", "rgba(0,0,0,0.5)");
-          ellipse.setAttribute("stroke", "black");
-          ellipse.setAttribute("transform", `rotate(${angle}, ${x}, ${y})`);
-          ellipse.setAttribute("data-row-index", i);
-
-          // Add event listener to display tooltip when mouse hovers over ellipse
-          ellipse.addEventListener(
-            "mouseover",
-            (function (x, y, radius, ellipticity, angle) {
-              return function (event) {
-                this.setAttribute("stroke", "red");
-                this.setAttribute("stroke-width", "2");
-                var tooltip = document.getElementById("tooltip");
-                tooltip.style.display = "block";
-                tooltip.style.left = event.pageX + "px";
-                tooltip.style.top = event.pageY + "px";
-                tooltip.innerHTML = `x: ${(x - 250 - 65) * 8}, y: ${
-                  (y - 250 - 10) * -8
-                }, size: ${radius}, ellipticity: ${ellipticity}, angle: ${angle}`;
-              };
-            })(x, y, radius, ellipticity, angle)
-          );
-
-          // Remove tooltip and highlighting when mouse leaves ellipse
-          ellipse.addEventListener("mouseout", function () {
-            this.setAttribute("stroke", "black");
-            this.setAttribute("stroke-width", "1");
-            var tooltip = document.getElementById("tooltip");
-            tooltip.style.display = "none";
-          });
-
-          // Add event listener to highlight table row when ellipse is clicked
-          ellipse.addEventListener("click", function () {
-            // Remove highlight from any previously highlighted row
-            var highlightedRow = document.querySelector(".highlight");
-            if (highlightedRow) {
-              highlightedRow.classList.remove("highlight");
-            }
-
-            // Remove highlight from any previously highlighted ellipse
-            var highlightedEllipse =
-              document.querySelector(".highlight-ellipse");
-            if (highlightedEllipse) {
-              highlightedEllipse.classList.remove("highlight-ellipse");
-              highlightedEllipse.setAttribute("stroke", "black");
-              highlightedEllipse.setAttribute("stroke-width", "1");
-            }
-
-            // Highlight the corresponding row in the table
-            var rowIndex = this.getAttribute("data-row-index");
-            table.rows[rowIndex].classList.add("highlight");
-            // Highlight the corresponding ellipse
-            this.classList.add("highlight-ellipse");
-            this.setAttribute("stroke", "red");
-            this.setAttribute("stroke-width", "2");
-          });
-
-          svg.appendChild(ellipse);
-        }
-
-        // Add event listener to highlight ellipse when table row is clicked
-        Array.from(table.rows).forEach((row, index) => {
-          row.addEventListener("click", function () {
-            // Remove highlight from any previously highlighted ellipse
-            var highlightedEllipse =
-              document.querySelector(".highlight-ellipse");
-            if (highlightedEllipse) {
-              highlightedEllipse.classList.remove("highlight-ellipse");
-              highlightedEllipse.setAttribute("stroke", "black");
-              highlightedEllipse.setAttribute("stroke-width", "1");
-            }
-
-            // Remove highlight from any previously highlighted row
-            var highlightedRow = document.querySelector(".highlight");
-            if (highlightedRow) {
-              highlightedRow.classList.remove("highlight");
-            }
-
-            // Highlight the corresponding ellipse
-            var ellipse = svg.querySelector(
-              `ellipse[data-row-index="${index}"]`
-            );
-            if (ellipse) {
-              ellipse.classList.add("highlight-ellipse");
-              ellipse.setAttribute("stroke", "red");
-              ellipse.setAttribute("stroke-width", "2");
-            }
-
-            // Highlight the clicked row
-            this.classList.add("highlight");
-          });
-        });
-      }
       // Function to handle file upload
       function handleFile() {
         var fileInput = document.getElementById("fileInput");
@@ -1472,6 +1441,225 @@
           "font-weight: bold; font-style: italic;"
         );
         xAxisLabel.textContent = "cos(θ)";
+        svg.appendChild(xAxisLabel);
+
+        const yAxisLabel = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "text"
+        );
+        yAxisLabel.setAttribute("x", margin - 25);
+        yAxisLabel.setAttribute("y", margin + 30);
+        yAxisLabel.setAttribute("text-anchor", "middle");
+        yAxisLabel.setAttribute("font-size", "22");
+        yAxisLabel.setAttribute("font-family", "Arial");
+        yAxisLabel.setAttribute(
+          "style",
+          "font-weight: bold; font-style: italic;"
+        );
+        yAxisLabel.textContent = "f";
+        svg.appendChild(yAxisLabel);
+      }
+
+      // Function to draw histogram for ellipticities
+      function drawHistogramEllipticities(data, numBins) {
+        const svg = document.getElementById("histogramSVG");
+        svg.innerHTML = "";
+
+        const width = 575;
+        const height = 545;
+        const margin = 55;
+
+        // Extract ellipticities
+        const ellipticityValues = data.map((d) => d.E);
+
+        // Bin the ellipticity values
+        const binWidth = 1 / numBins; // Range [0, 1] divided by number of bins
+        const bins = new Array(numBins).fill(0);
+
+        ellipticityValues.forEach((value) => {
+          const binIndex = Math.floor(value / binWidth);
+          if (binIndex >= 0 && binIndex < numBins) {
+            bins[binIndex]++;
+          }
+        });
+
+        // Normalize bin values
+        const totalGalaxies = data.length;
+        const maxBinValue = Math.max(...bins);
+        const barWidth = (width - margin * 2) / numBins;
+
+        // Create X and Y axes
+        const xAxis = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "line"
+        );
+        xAxis.setAttribute("x1", margin);
+        xAxis.setAttribute("y1", height - margin);
+        xAxis.setAttribute("x2", width - margin);
+        xAxis.setAttribute("y2", height - margin);
+        xAxis.setAttribute("stroke-width", "2");
+        xAxis.setAttribute("stroke", "black");
+        svg.appendChild(xAxis);
+
+        const yAxis = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "line"
+        );
+        yAxis.setAttribute("x1", margin);
+        yAxis.setAttribute("y1", margin);
+        yAxis.setAttribute("x2", margin);
+        yAxis.setAttribute("y2", height - margin);
+        yAxis.setAttribute("stroke-width", "2");
+        yAxis.setAttribute("stroke", "black");
+        svg.appendChild(yAxis);
+
+        // Create X axis labels and ticks
+        for (let i = 0; i <= numBins; i++) {
+          const x = margin + i * barWidth;
+
+          // Labels
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          text.setAttribute("x", x);
+          text.setAttribute("y", height - margin + 25);
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("font-size", "18");
+          text.setAttribute("font-family", "Arial");
+          text.textContent = (i * binWidth).toFixed(2);
+          svg.appendChild(text);
+
+          // Ticks
+          const tick = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          tick.setAttribute("x1", x);
+          tick.setAttribute("y1", height - margin);
+          tick.setAttribute("x2", x);
+          tick.setAttribute("y2", height - margin + 5);
+          tick.setAttribute("stroke", "black");
+          svg.appendChild(tick);
+        }
+
+        // Create Y axis labels, ticks, and grid lines
+        const yAxisSteps = 5;
+        for (let i = 0; i <= yAxisSteps; i++) {
+          const y = height - margin - ((height - margin * 2) / yAxisSteps) * i;
+          const densityValue = (
+            (maxBinValue * i) /
+            yAxisSteps /
+            totalGalaxies
+          ).toFixed(2);
+
+          // Labels
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          text.setAttribute("x", margin - 10);
+          text.setAttribute("y", y + 3);
+          text.setAttribute("text-anchor", "end");
+          text.setAttribute("font-size", "18");
+          text.setAttribute("font-family", "Arial");
+          text.textContent = i === yAxisSteps ? "" : densityValue; // Hide the text for the last value
+          svg.appendChild(text);
+
+          // Ticks
+          const tick = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          tick.setAttribute("x1", margin - 5);
+          tick.setAttribute("y1", y);
+          tick.setAttribute("x2", margin);
+          tick.setAttribute("y2", y);
+          tick.setAttribute("stroke", "black");
+          svg.appendChild(tick);
+
+          // Grid lines
+          const gridLine = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          gridLine.setAttribute("x1", margin);
+          gridLine.setAttribute("y1", y);
+          gridLine.setAttribute("x2", width - margin);
+          gridLine.setAttribute("y2", y);
+          gridLine.setAttribute("stroke", "lightgray");
+          gridLine.setAttribute("stroke-dasharray", "2,2");
+          svg.appendChild(gridLine);
+        }
+
+        // Create bars with borders
+        bins.forEach((binValue, index) => {
+          const barHeight = (binValue / maxBinValue) * (height - margin * 2);
+          const rect = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "rect"
+          );
+          rect.setAttribute("x", margin + index * barWidth);
+          rect.setAttribute("y", height - margin - barHeight);
+          rect.setAttribute("width", barWidth);
+          rect.setAttribute("height", barHeight);
+          rect.setAttribute("fill", "rgb(211, 211, 211)");
+          rect.setAttribute("stroke", "black");
+          rect.setAttribute("stroke-width", "1");
+
+          // Tooltip (title attribute)
+          rect.setAttribute(
+            "title",
+            `Density: ${(binValue / totalGalaxies).toFixed(4)}`
+          );
+
+          // Mouseover event listener for tooltip
+          rect.addEventListener("mouseover", (event) => {
+            const tooltip = document.getElementById("tooltip");
+            tooltip.textContent = `Bin: ${(binValue / totalGalaxies).toFixed(
+              4
+            )}`;
+            tooltip.style.display = "block";
+            tooltip.style.top = `${event.clientY}px`;
+            tooltip.style.left = `${event.clientX}px`;
+            rect.setAttribute("fill", "gray");
+          });
+
+          // Mouseout event listener to hide tooltip
+          rect.addEventListener("mouseout", () => {
+            const tooltip = document.getElementById("tooltip");
+            tooltip.style.display = "none";
+            rect.setAttribute("fill", "rgb(211, 211, 211)");
+          });
+
+          svg.appendChild(rect);
+        });
+
+        // Tooltip element
+        const tooltip = document.createElement("div");
+        tooltip.setAttribute("id", "tooltip");
+        tooltip.style.position = "absolute";
+        tooltip.style.display = "none";
+        tooltip.style.background = "rgba(0, 0, 0, 0.7)";
+        tooltip.style.color = "#fff";
+        tooltip.style.padding = "5px";
+        document.body.appendChild(tooltip);
+
+        // Add axis labels
+        const xAxisLabel = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "text"
+        );
+        xAxisLabel.setAttribute("x", width / 2 - margin / 2 + 15);
+        xAxisLabel.setAttribute("y", height - margin / 2 + 20);
+        xAxisLabel.setAttribute("text-anchor", "center");
+        xAxisLabel.setAttribute("font-size", "22");
+        xAxisLabel.setAttribute("font-family", "Arial");
+        xAxisLabel.setAttribute(
+          "style",
+          "font-weight: bold; font-style: italic;"
+        );
+        xAxisLabel.textContent = "E";
         svg.appendChild(xAxisLabel);
 
         const yAxisLabel = document.createElementNS(
