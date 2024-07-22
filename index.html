@@ -364,7 +364,7 @@
       <div class="header-buttons">
         <button onclick="drawEllipses()">CreateMap</button>
         <button onclick="saveBMP()">Save Map</button>
-        <button onclick="histogramSVGsaveBMP()">Save as D.H.</button>
+        <button onclick="histogramSVGsaveBMP()">Save D.H.</button>
       </div>
     </header>
 
@@ -617,6 +617,7 @@
         } else {
           indicator.textContent = "↓";
         }
+        drawEllipses();
       }
       // Function to create an editable table
       function createEditableTable(rows, cols) {
@@ -2092,7 +2093,7 @@
 Орієнтація галактики: ${point.PA}, <br>
 Орієнтація найближчої галактики: ${closestPoint.PA} <br>
 Косинус відхилення кута: ${cosAngleDifference} <br>`;
-
+                point.m /= 2;
                 const ellipse = createCircleViewe(
                   point.i,
                   point.x,
@@ -2103,7 +2104,7 @@
                   "black",
                   "rgba(255,0,0, 0.5)"
                 );
-
+                closestPoint.m /= 2;
                 const ellipse2 = createCircleViewe(
                   closestPoint.i,
                   closestPoint.x,
@@ -2191,7 +2192,7 @@
                 // Додаємо оброблену пару точок до набору
                 processedPairs.add(pairKey);
               }
-
+              point.m /= 2;
               const ShowAllGalaxies =
                 document.getElementById("ShowAllGalaxies").checked;
               if (ShowAllGalaxies) {
@@ -2232,6 +2233,9 @@
           var radius = Number(
             parseFloat(table.rows[i].cells[3].innerHTML.replace(",", "."))
           );
+          //var m = 0.6 * (18.5 - radius);
+          //radius = 3 * Math.pow(2, m) + 6;
+          radius /= 2;
           var ellipticity = Number(
             parseFloat(table.rows[i].cells[4].innerHTML.replace(",", "."))
           );
