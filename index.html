@@ -417,10 +417,10 @@
       <nav>
         <ul class="tabs">
           <li class="tab-link active" data-tab="tab-1">C-I-O</li>
-          <li class="tab-link" data-tab="tab-2">L-F</li>
+          <li class="tab-link" data-tab="tab-2">Line</li>
           <li class="tab-link" data-tab="tab-3">LHB</li>
           <li class="tab-link" data-tab="tab-4">E</li>
-          <li class="tab-link" data-tab="tab-5">Аналіз кута PA</li>
+          <li class="tab-link" data-tab="tab-5">Analysis of directionality</li>
         </ul>
 
         <div id="tab-1" class="tab-content active">
@@ -429,7 +429,7 @@
           <input type="number" id="Radius" value="calculateClusterRadius()" />
           <br />
           <label for="ringWith">Width:</label>
-          <input type="number" id="ringWith" value="0.1" />
+          <input type="number" id="ringWith" value="0.15" />
           <br />
           <label for="numRings">Кількість кілець:</label>
           <input type="number" id="numRings" value="5" disabled />
@@ -452,6 +452,28 @@
             checked
             onchange="toggleRings()"
           />
+          <br />
+          <label for="densityCalculation1">
+            <input
+              type="radio"
+              id="densityCalculation1"
+              name="densityCalculation"
+              value="method1"
+              checked
+            />
+            Враховувати долю площі
+          </label>
+          <br />
+          <label for="densityCalculation2">
+            <input
+              type="radio"
+              id="densityCalculation2"
+              name="densityCalculation"
+              value="method2"
+            />
+            Не враховувати долю площі
+          </label>
+          <br />
           <br />
           <button onclick="analyzeConcentration()">
             Аналізувати концентрацію
@@ -484,7 +506,7 @@
           </button>
         </div>
         <div id="tab-5" class="tab-content">
-          <b>Аналіз кута PA</b>
+          <b>Analysis of directionality</b>
           <br />
           <br />
           <label for="AngleDifference">AngleDifference:</label>
@@ -502,11 +524,23 @@
             >Show the line to the 1st minimally distant galaxy:</label
           >
           <input type="checkbox" id="distantLine" checked />
+
           <br />
-
-          <label for="ShowAllGalaxies">Show all galaxies:</label>
+          <label for="eLimit">Обмеження E (більше за):</label>
+          <input type="number" id="eLimit" value="0.2" step="0.01" />
+          <br />
+          <label for="mLimit">Обмеження m' (більше за):</label>
+          <input type="number" id="mLimit" value="3" step="0.1" />
+          <br />
+          <label for="ShowAllGalaxies"
+            >Show all galaxies inside the filter:</label
+          >
           <input type="checkbox" id="ShowAllGalaxies" checked />
-
+          <br />
+          <label for="showOutOfFilterGalaxies"
+            >Show all galaxies outside the filter:</label
+          >
+          <input type="checkbox" id="showOutOfFilterGalaxies" checked />
           <br />
           <br />
           <button
@@ -943,7 +977,7 @@
             maxDistance = dist;
           }
         });
-        return maxDistance * 8 + 0.0001;
+        return Math.ceil(maxDistance) * 8;
       }
 
       function analyzeConcentration() {
@@ -1000,13 +1034,18 @@
           const ringArea = calculateRingArea(innerRadius, outerRadius);
           const ringFraction = ringArea / totalArea;
           const totalGalaxies = data.length;
+
           resultsDiv.innerHTML += `<br><b>Кільце ${
             index + 1
           }:</b> ${count} входжень, Площа: ${ringArea.toFixed(
             2
           )} квадратних одиниць, Доля площі: ${ringFraction.toFixed(
             4
-          )}, Density: ${count / totalGalaxies / ringFraction}<br>`;
+          )}, Density: ${calculateDensity(
+            count,
+            totalGalaxies,
+            ringFraction
+          )}<br>`;
         });
 
         for (let i = 1; i <= numRings; i++) {
@@ -1018,11 +1057,24 @@
           const ringArea =
             Math.PI * ((index + 1) ** 2 - index ** 2) * ringDistance ** 2;
           const ringFraction = ringArea / totalArea;
-          const density = count / totalGalaxies / ringFraction;
+          const density = calculateDensity(count, totalGalaxies, ringFraction);
           return { density, ringFraction };
         });
 
         drawHistogram(histogramData, ringDistance, numRings);
+      }
+
+      function calculateDensity(count, totalGalaxies, ringFraction) {
+        const method = document.querySelector(
+          'input[name="densityCalculation"]:checked'
+        ).value;
+        if (method === "method1") {
+          // Враховувати долю площі
+          return count / totalGalaxies / ringFraction;
+        } else {
+          // Не враховувати долю площі
+          return count / totalGalaxies;
+        }
       }
 
       // Function to draw histogram with axes and borders
@@ -1255,15 +1307,17 @@
         const height = 545;
         const margin = 55;
 
-        // Обчислення косинусів PA
-        const cosPAValues = data.map((d) => Math.cos((d.PA * Math.PI) / 180));
+        // Обчислення модулів косинусів PA
+        const cosPAValues = data.map((d) =>
+          Math.abs(Math.cos((d.PA * Math.PI) / 180))
+        );
 
-        // Розподіл косинусів на бін
-        const binWidth = 2 / numBins; // Діапазон [-1, 1] розділений на кількість бін
+        // Розподіл модулів косинусів на бін
+        const binWidth = 1 / numBins; // Діапазон [0, 1] розділений на кількість бін
         const bins = new Array(numBins).fill(0);
 
         cosPAValues.forEach((value) => {
-          const binIndex = Math.floor((value + 1) / binWidth);
+          const binIndex = Math.floor(value / binWidth);
           if (binIndex >= 0 && binIndex < numBins) {
             bins[binIndex]++;
           }
@@ -1301,7 +1355,6 @@
 
         // Створення підписів осі X та тік
         for (let i = 0; i <= numBins; i++) {
-          // Зміна в циклі
           const x = margin + i * barWidth;
 
           // Підписи
@@ -1314,7 +1367,7 @@
           text.setAttribute("text-anchor", "middle");
           text.setAttribute("font-size", "18");
           text.setAttribute("font-family", "Arial");
-          text.textContent = (i * binWidth - 1).toFixed(2);
+          text.textContent = (i * binWidth).toFixed(2);
           svg.appendChild(text);
 
           // Тіки
@@ -1442,225 +1495,6 @@
           "font-weight: bold; font-style: italic;"
         );
         xAxisLabel.textContent = "cos(θ)";
-        svg.appendChild(xAxisLabel);
-
-        const yAxisLabel = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "text"
-        );
-        yAxisLabel.setAttribute("x", margin - 25);
-        yAxisLabel.setAttribute("y", margin + 30);
-        yAxisLabel.setAttribute("text-anchor", "middle");
-        yAxisLabel.setAttribute("font-size", "22");
-        yAxisLabel.setAttribute("font-family", "Arial");
-        yAxisLabel.setAttribute(
-          "style",
-          "font-weight: bold; font-style: italic;"
-        );
-        yAxisLabel.textContent = "f";
-        svg.appendChild(yAxisLabel);
-      }
-
-      // Function to draw histogram for ellipticities
-      function drawHistogramEllipticities(data, numBins) {
-        const svg = document.getElementById("histogramSVG");
-        svg.innerHTML = "";
-
-        const width = 575;
-        const height = 545;
-        const margin = 55;
-
-        // Extract ellipticities
-        const ellipticityValues = data.map((d) => d.E);
-
-        // Bin the ellipticity values
-        const binWidth = 1 / numBins; // Range [0, 1] divided by number of bins
-        const bins = new Array(numBins).fill(0);
-
-        ellipticityValues.forEach((value) => {
-          const binIndex = Math.floor(value / binWidth);
-          if (binIndex >= 0 && binIndex < numBins) {
-            bins[binIndex]++;
-          }
-        });
-
-        // Normalize bin values
-        const totalGalaxies = data.length;
-        const maxBinValue = Math.max(...bins);
-        const barWidth = (width - margin * 2) / numBins;
-
-        // Create X and Y axes
-        const xAxis = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "line"
-        );
-        xAxis.setAttribute("x1", margin);
-        xAxis.setAttribute("y1", height - margin);
-        xAxis.setAttribute("x2", width - margin);
-        xAxis.setAttribute("y2", height - margin);
-        xAxis.setAttribute("stroke-width", "2");
-        xAxis.setAttribute("stroke", "black");
-        svg.appendChild(xAxis);
-
-        const yAxis = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "line"
-        );
-        yAxis.setAttribute("x1", margin);
-        yAxis.setAttribute("y1", margin);
-        yAxis.setAttribute("x2", margin);
-        yAxis.setAttribute("y2", height - margin);
-        yAxis.setAttribute("stroke-width", "2");
-        yAxis.setAttribute("stroke", "black");
-        svg.appendChild(yAxis);
-
-        // Create X axis labels and ticks
-        for (let i = 0; i <= numBins; i++) {
-          const x = margin + i * barWidth;
-
-          // Labels
-          const text = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "text"
-          );
-          text.setAttribute("x", x);
-          text.setAttribute("y", height - margin + 25);
-          text.setAttribute("text-anchor", "middle");
-          text.setAttribute("font-size", "18");
-          text.setAttribute("font-family", "Arial");
-          text.textContent = (i * binWidth).toFixed(2);
-          svg.appendChild(text);
-
-          // Ticks
-          const tick = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "line"
-          );
-          tick.setAttribute("x1", x);
-          tick.setAttribute("y1", height - margin);
-          tick.setAttribute("x2", x);
-          tick.setAttribute("y2", height - margin + 5);
-          tick.setAttribute("stroke", "black");
-          svg.appendChild(tick);
-        }
-
-        // Create Y axis labels, ticks, and grid lines
-        const yAxisSteps = 5;
-        for (let i = 0; i <= yAxisSteps; i++) {
-          const y = height - margin - ((height - margin * 2) / yAxisSteps) * i;
-          const densityValue = (
-            (maxBinValue * i) /
-            yAxisSteps /
-            totalGalaxies
-          ).toFixed(2);
-
-          // Labels
-          const text = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "text"
-          );
-          text.setAttribute("x", margin - 10);
-          text.setAttribute("y", y + 3);
-          text.setAttribute("text-anchor", "end");
-          text.setAttribute("font-size", "18");
-          text.setAttribute("font-family", "Arial");
-          text.textContent = i === yAxisSteps ? "" : densityValue; // Hide the text for the last value
-          svg.appendChild(text);
-
-          // Ticks
-          const tick = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "line"
-          );
-          tick.setAttribute("x1", margin - 5);
-          tick.setAttribute("y1", y);
-          tick.setAttribute("x2", margin);
-          tick.setAttribute("y2", y);
-          tick.setAttribute("stroke", "black");
-          svg.appendChild(tick);
-
-          // Grid lines
-          const gridLine = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "line"
-          );
-          gridLine.setAttribute("x1", margin);
-          gridLine.setAttribute("y1", y);
-          gridLine.setAttribute("x2", width - margin);
-          gridLine.setAttribute("y2", y);
-          gridLine.setAttribute("stroke", "lightgray");
-          gridLine.setAttribute("stroke-dasharray", "2,2");
-          svg.appendChild(gridLine);
-        }
-
-        // Create bars with borders
-        bins.forEach((binValue, index) => {
-          const barHeight = (binValue / maxBinValue) * (height - margin * 2);
-          const rect = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "rect"
-          );
-          rect.setAttribute("x", margin + index * barWidth);
-          rect.setAttribute("y", height - margin - barHeight);
-          rect.setAttribute("width", barWidth);
-          rect.setAttribute("height", barHeight);
-          rect.setAttribute("fill", "rgb(211, 211, 211)");
-          rect.setAttribute("stroke", "black");
-          rect.setAttribute("stroke-width", "1");
-
-          // Tooltip (title attribute)
-          rect.setAttribute(
-            "title",
-            `Density: ${(binValue / totalGalaxies).toFixed(4)}`
-          );
-
-          // Mouseover event listener for tooltip
-          rect.addEventListener("mouseover", (event) => {
-            const tooltip = document.getElementById("tooltip");
-            tooltip.textContent = `Bin: ${(binValue / totalGalaxies).toFixed(
-              4
-            )}`;
-            tooltip.style.display = "block";
-            tooltip.style.top = `${event.clientY}px`;
-            tooltip.style.left = `${event.clientX}px`;
-            rect.setAttribute("fill", "gray");
-          });
-
-          // Mouseout event listener to hide tooltip
-          rect.addEventListener("mouseout", () => {
-            const tooltip = document.getElementById("tooltip");
-            tooltip.style.display = "none";
-            rect.setAttribute("fill", "rgb(211, 211, 211)");
-          });
-
-          svg.appendChild(rect);
-        });
-
-        // Tooltip element
-        const tooltip = document.createElement("div");
-        tooltip.setAttribute("id", "tooltip");
-        tooltip.style.position = "absolute";
-        tooltip.style.display = "none";
-        tooltip.style.background = "rgba(0, 0, 0, 0.7)";
-        tooltip.style.color = "#fff";
-        tooltip.style.padding = "5px";
-        document.body.appendChild(tooltip);
-
-        // Add axis labels
-        const xAxisLabel = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "text"
-        );
-        xAxisLabel.setAttribute("x", width / 2 - margin / 2 + 15);
-        xAxisLabel.setAttribute("y", height - margin / 2 + 20);
-        xAxisLabel.setAttribute("text-anchor", "center");
-        xAxisLabel.setAttribute("font-size", "22");
-        xAxisLabel.setAttribute("font-family", "Arial");
-        xAxisLabel.setAttribute(
-          "style",
-          "font-weight: bold; font-style: italic;"
-        );
-        xAxisLabel.textContent = "E";
         svg.appendChild(xAxisLabel);
 
         const yAxisLabel = document.createElementNS(
@@ -1835,7 +1669,9 @@
               tooltip.style.top = event.pageY + "px";
               tooltip.innerHTML = `x: ${(x - 250 - 65) * 8}, y: ${
                 (y - 250 - 10) * -8
-              }, size: ${radius}, ellipticity: ${ellipticity}, angle: ${angle}`;
+              }, size: ${
+                radius * 2
+              }, ellipticity: ${ellipticity}, angle: ${angle}`;
             };
           })(x, y, radius, ellipticity, angle)
         );
@@ -2047,6 +1883,11 @@
         );
         const cosTolerance = Math.cos((Difference * Math.PI) / 180); // Compute cos of angle tolerance
         const ResizeM = parseFloat(document.getElementById("ResizeM").value);
+        const eLimit = parseFloat(document.getElementById("eLimit").value);
+        const mLimit = parseFloat(document.getElementById("mLimit").value);
+        const showOutOfFilterGalaxies = document.getElementById(
+          "showOutOfFilterGalaxies"
+        ).checked;
 
         // Функція для розрахунку відстані між двома точками
         function distance(x1, y1, x2, y2) {
@@ -2055,18 +1896,31 @@
 
         const processedPairs = new Set();
 
+        // Фільтруємо дані
+        const filteredData = data.filter(
+          (point) => point.E > eLimit && point.m > mLimit
+        );
+        const outOfFilterData = data.filter(
+          (point) => !(point.E > eLimit && point.m > mLimit)
+        );
+
         // Проходимо по кожній точці
-        data.forEach((point, index) => {
+        filteredData.forEach((point, index) => {
           let minDistance = Infinity;
           let closestPoint = null;
 
           // Знаходимо найближчу точку до поточної
-          for (let i = 0; i < data.length; i++) {
+          for (let i = 0; i < filteredData.length; i++) {
             if (i !== index) {
-              const dist = distance(point.x, point.y, data[i].x, data[i].y);
+              const dist = distance(
+                point.x,
+                point.y,
+                filteredData[i].x,
+                filteredData[i].y
+              );
               if (dist < minDistance) {
                 minDistance = dist;
-                closestPoint = data[i];
+                closestPoint = filteredData[i];
               }
             }
           }
@@ -2093,23 +1947,22 @@
 Орієнтація галактики: ${point.PA}, <br>
 Орієнтація найближчої галактики: ${closestPoint.PA} <br>
 Косинус відхилення кута: ${cosAngleDifference} <br>`;
-                point.m /= 2;
+
                 const ellipse = createCircleViewe(
                   point.i,
                   point.x,
                   point.y,
-                  point.m + ResizeM,
+                  point.m / 2 + ResizeM,
                   point.E,
                   point.PA,
                   "black",
                   "rgba(255,0,0, 0.5)"
                 );
-                closestPoint.m /= 2;
                 const ellipse2 = createCircleViewe(
                   closestPoint.i,
                   closestPoint.x,
                   closestPoint.y,
-                  closestPoint.m + ResizeM,
+                  closestPoint.m / 2 + ResizeM,
                   closestPoint.E,
                   closestPoint.PA,
                   "black",
@@ -2132,10 +1985,9 @@
                   svg.appendChild(line);
                 }
 
-                const showRings =
+                const directionLine =
                   document.getElementById("directionLine").checked;
-
-                if (showRings) {
+                if (directionLine) {
                   const directionLine = document.createElementNS(
                     "http://www.w3.org/2000/svg",
                     "line"
@@ -2192,25 +2044,44 @@
                 // Додаємо оброблену пару точок до набору
                 processedPairs.add(pairKey);
               }
-              point.m /= 2;
-              const ShowAllGalaxies =
-                document.getElementById("ShowAllGalaxies").checked;
-              if (ShowAllGalaxies) {
-                const ellipse = createCircleViewe(
-                  point.i,
-                  point.x,
-                  point.y,
-                  point.m + ResizeM,
-                  point.E,
-                  point.PA,
-                  "black",
-                  "rgba(0,0,0, 0.1)"
-                );
-                svg.appendChild(ellipse);
-              }
             }
           }
         });
+
+        const ShowAllGalaxies =
+          document.getElementById("ShowAllGalaxies").checked;
+        if (ShowAllGalaxies) {
+          filteredData.forEach((point) => {
+            const ellipse = createCircleViewe(
+              point.i,
+              point.x,
+              point.y,
+              point.m / 2 + ResizeM,
+              point.E,
+              point.PA,
+              "black",
+              "rgba(0,0,0, 0.1)"
+            );
+            svg.appendChild(ellipse);
+          });
+        }
+
+        if (showOutOfFilterGalaxies) {
+          outOfFilterData.forEach((point) => {
+            const ellipse = createCircleViewe(
+              point.i,
+              point.x,
+              point.y,
+              point.m / 2 + ResizeM,
+              point.E,
+              point.PA,
+              "black",
+              "rgba(0,0,0, 0.1)"
+            );
+            svg.appendChild(ellipse);
+          });
+        }
+
         drawHistogramPA(getDataFromTable(), 10);
       }
 
@@ -2273,7 +2144,9 @@
                 tooltip.style.top = event.pageY + "px";
                 tooltip.innerHTML = `x: ${(x - 250 - 65) * 8}, y: ${
                   (y - 250 - 10) * -8
-                }, size: ${radius}, ellipticity: ${ellipticity}, angle: ${angle}`;
+                }, size: ${
+                  radius * 2
+                }, ellipticity: ${ellipticity}, angle: ${angle}`;
               };
             })(x, y, radius, ellipticity, angle)
           );
