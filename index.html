@@ -429,7 +429,7 @@
           <input type="number" id="Radius" value="calculateClusterRadius()" />
           <br />
           <label for="ringWith">Width:</label>
-          <input type="number" id="ringWith" value="0.15" />
+          <input type="number" id="ringWith" value="0.15" step="0.05"/>
           <br />
           <label for="numRings">Кількість кілець:</label>
           <input type="number" id="numRings" value="5" disabled />
@@ -1392,7 +1392,7 @@
         const margin = 55;
         const barWidth = (width - margin * 2) / data.length;
 
-        const maxDensity = Math.max(...data.map((d) => d.density));
+        const maxDensity = 0.4;//Math.max(...data.map((d) => d.density));
 
         // Create X and Y axes
         const xAxis = document.createElementNS(
@@ -1436,7 +1436,7 @@
             text.setAttribute("text-anchor", "middle");
             text.setAttribute("font-size", "18");
             text.setAttribute("font-family", "Arial");
-            text.textContent = (i * (1 / xAxisSteps)).toFixed(1); // Adjust label value
+            text.textContent = (i * (document.getElementById("ringWith").value)).toFixed(2); // Adjust label value
             svg.appendChild(text);
           }
 
@@ -1501,13 +1501,22 @@
         // Create bars with borders
         data.forEach((d, index) => {
           const barHeight = (d.density / maxDensity) * (height - margin * 2);
+
+          let adjustedBarWidth = barWidth;
+    const x = margin + index * barWidth;
+
+    // Adjust the width of the last bar if it doesn't fit
+    if (index === data.length - 1 && x + barWidth > width - margin) {
+      adjustedBarWidth = width - margin - x;
+    }
+
           const rect = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "rect"
           );
-          rect.setAttribute("x", margin + index * barWidth);
+          rect.setAttribute("x", x);
           rect.setAttribute("y", height - margin - barHeight);
-          rect.setAttribute("width", barWidth);
+          rect.setAttribute("width", adjustedBarWidth);
           rect.setAttribute("height", barHeight);
           rect.setAttribute("fill", "rgb(211, 211, 211)");
           rect.setAttribute("stroke", "black");
@@ -1550,18 +1559,23 @@
 
         // Create bars with borders and tooltips
         data.forEach((d, index) => {
-          const barHeight = (d.density / maxDensity) * (height - margin * 2);
-          const rect = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "rect"
-          );
-          rect.setAttribute("x", margin + index * barWidth);
-          rect.setAttribute("y", height - margin - barHeight);
-          rect.setAttribute("width", barWidth);
-          rect.setAttribute("height", barHeight);
-          rect.setAttribute("fill", "rgb(211, 211, 211)");
-          rect.setAttribute("stroke", "black");
-          rect.setAttribute("stroke-width", "1");
+    const barHeight = (d.density / maxDensity) * (height - margin * 2);
+    let adjustedBarWidth = barWidth;
+    const x = margin + index * barWidth;
+
+    // Adjust the width of the last bar if it doesn't fit
+    if (index === data.length - 1 && x + barWidth > width - margin) {
+      adjustedBarWidth = width - margin - x;
+    }
+
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("x", x);
+    rect.setAttribute("y", height - margin - barHeight);
+    rect.setAttribute("width", adjustedBarWidth);
+    rect.setAttribute("height", barHeight);
+    rect.setAttribute("fill", "rgb(211, 211, 211)");
+    rect.setAttribute("stroke", "black");
+    rect.setAttribute("stroke-width", "1");
 
           // Tooltip (title attribute)
           rect.setAttribute("title", `Density: ${d.density}`);
