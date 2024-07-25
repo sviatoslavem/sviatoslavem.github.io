@@ -429,7 +429,7 @@
           <input type="number" id="Radius" value="calculateClusterRadius()" />
           <br />
           <label for="ringWith">Width:</label>
-          <input type="number" id="ringWith" value="0.15" step="0.05"/>
+          <input type="number" id="ringWith" value="0.15" step="0.05" />
           <br />
           <label for="numRings">Кількість кілець:</label>
           <input type="number" id="numRings" value="5" disabled />
@@ -693,231 +693,328 @@
       }
 
       function analyzeByStrips() {
-    const radius = parseFloat(document.getElementById("Radius").value) / 8;
-    const centerX = parseFloat(document.getElementById("centerX").value) / 8 + 250 + 65;
-    const centerY = parseFloat(document.getElementById("centerY").value) / -8 + 250 + 10;
-    const numStrips = parseInt(document.getElementById("numStrips").value);
-    const excludeCenter = document.getElementById("excludeCenter").checked;
-    const rotationAngle = parseFloat(document.getElementById("rotationAngle").value) || 0;
-    const showLine = document.getElementById("showLine").checked;
+        const radius = parseFloat(document.getElementById("Radius").value) / 8;
+        const centerX =
+          parseFloat(document.getElementById("centerX").value) / 8 + 250 + 65;
+        const centerY =
+          parseFloat(document.getElementById("centerY").value) / -8 + 250 + 10;
+        const numStrips = parseInt(document.getElementById("numStrips").value);
+        const excludeCenter = document.getElementById("excludeCenter").checked;
+        const rotationAngle =
+          parseFloat(document.getElementById("rotationAngle").value) || 0;
+        const showLine = document.getElementById("showLine").checked;
 
-    const svg = document.getElementById("mySVG");
-    svg.innerHTML = "";
-    drawLinesAndText();
+        const svg = document.getElementById("mySVG");
+        svg.innerHTML = "";
+        drawLinesAndText();
 
-    const stripResults = document.getElementById("stripResults");
-    stripResults.innerHTML = "";
+        const stripResults = document.getElementById("stripResults");
+        stripResults.innerHTML = "";
 
-    // Draw main circle
-    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    circle.setAttribute("cx", centerX);
-    circle.setAttribute("cy", centerY);
-    circle.setAttribute("r", radius);
-    circle.setAttribute("stroke", "rgba(0,0,0, 0.1)");
-    circle.setAttribute("stroke-width", "1");
-    circle.setAttribute("fill", "none");
-    svg.appendChild(circle);
+        // Draw main circle
+        const circle = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "circle"
+        );
+        circle.setAttribute("cx", centerX);
+        circle.setAttribute("cy", centerY);
+        circle.setAttribute("r", radius);
+        circle.setAttribute("stroke", "rgba(0,0,0, 0.1)");
+        circle.setAttribute("stroke-width", "1");
+        circle.setAttribute("fill", "none");
+        svg.appendChild(circle);
 
-    // Draw strips
-    const stripWidth = (2 * radius) / numStrips;
-    const stripCounts = Array(numStrips).fill(0);
-
-    for (let i = 0; i < numStrips; i++) {
-        const stripX = centerX - radius + i * stripWidth;
-
-        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        rect.setAttribute("x", stripX);
-        rect.setAttribute("y", centerY - radius);
-        rect.setAttribute("width", stripWidth);
-        rect.setAttribute("height", 2 * radius);
-        rect.setAttribute("stroke", "rgba(0,0,0, 0.1)");
-        rect.setAttribute("fill", `none`);
-        svg.appendChild(rect);
-    }
-
-    // Draw inner dashed circle if excludeCenter is checked
-    if (excludeCenter) {
-        const innerCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        innerCircle.setAttribute("cx", centerX);
-        innerCircle.setAttribute("cy", centerY);
-        innerCircle.setAttribute("r", stripWidth / 2);
-        innerCircle.setAttribute("stroke", "rgba(0,0,0, 0.1)");
-        innerCircle.setAttribute("stroke-width", "1");
-        innerCircle.setAttribute("fill", "none");
-        innerCircle.setAttribute("stroke-dasharray", "2, 2");
-        svg.appendChild(innerCircle);
-    }
-
-    // Analyze data points
-    const data = getDataFromTable(); // Assuming you have a function to get data points
-
-    let maxEntries = 0;
-    let maxStripIndex = -1;
-
-    data.forEach((point, index) => {
-        const rotatedPoint = rotatePoint(point.x, point.y, centerX, centerY, rotationAngle);
-        const distToCenter = Math.sqrt((rotatedPoint.x - centerX) ** 2 + (rotatedPoint.y - centerY) ** 2);
-        const isInsideCenter = excludeCenter && distToCenter < stripWidth / 2;
-        const color = distToCenter <= radius && !isInsideCenter ? "blue" : "red";
-        const fillColor = distToCenter <= radius && !isInsideCenter ? "lightblue" : "lightcoral";
-
-        const ellipse = createCircleViewe(index, rotatedPoint.x, rotatedPoint.y, 3, 0, point.PA, color, fillColor);
-        svg.appendChild(ellipse);
-
-        if (distToCenter <= radius && !isInsideCenter) {
-            const stripIndex = Math.floor((rotatedPoint.x - (centerX - radius)) / stripWidth);
-            if (stripIndex >= 0 && stripIndex < numStrips) {
-                stripCounts[stripIndex]++;
-                if (stripCounts[stripIndex] > maxEntries) {
-                    maxEntries = stripCounts[stripIndex];
-                    maxStripIndex = stripIndex;
-                }
-            }
-        }
-    });
-
-    // Calculate areas of strips inside the circle
-    const totalCircleArea = Math.PI * radius * radius;
-    const stripAreas = calculateStripAreas(radius, numStrips, stripWidth, excludeCenter);
-
-    // Display results
-    stripCounts.forEach((count, index) => {
-        const stripArea = stripAreas[index];
-        const stripAreaFraction = stripArea / totalCircleArea;
-        stripResults.innerHTML += `<div>Полоса ${index + 1}: ${count} входжень, Площа: ${stripArea.toFixed(2)}, Доля площі: ${stripAreaFraction.toFixed(4)}</div>`;
-    });
-
-    // Highlight ellipses in the strip with the most entries
-    if (maxStripIndex !== -1) {
-        data.forEach((point, index) => {
-            const rotatedPoint = rotatePoint(point.x, point.y, centerX, centerY, rotationAngle);
-            const distToCenter = Math.sqrt((rotatedPoint.x - centerX) ** 2 + (rotatedPoint.y - centerY) ** 2);
-            const isInsideCenter = excludeCenter && distToCenter < stripWidth / 2;
-
-            if (distToCenter <= radius && !isInsideCenter) {
-                const stripIndex = Math.floor((rotatedPoint.x - (centerX - radius)) / stripWidth);
-                if (stripIndex === maxStripIndex) {
-                    const ellipse = createCircleViewe(index, rotatedPoint.x, rotatedPoint.y, 3, 0, point.PA, "green", "lightgreen");
-                    svg.appendChild(ellipse);
-                }
-            }
-        });
-    }
-
-    // Draw rotation line if showLine is checked
-    if (showLine) {
-        const lineLength = Math.max(2 * radius + 20, 2 * radius + 20);
-        const angleInRadians = (rotationAngle * Math.PI) / 180;
-
-        const startX = centerX - lineLength * Math.cos(angleInRadians);
-        const startY = centerY + lineLength * Math.sin(angleInRadians);
-        const endX = centerX + lineLength * Math.cos(angleInRadians);
-        const endY = centerY - lineLength * Math.sin(angleInRadians);
-
-        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", startX);
-        line.setAttribute("y1", startY);
-        line.setAttribute("x2", endX);
-        line.setAttribute("y2", endY);
-        line.setAttribute("stroke", "black");
-        line.setAttribute("stroke-width", "1");
-        line.setAttribute("stroke-dasharray", "5, 5");
-        svg.appendChild(line);
-
-        // Draw start circle for the line
-        const startCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        startCircle.setAttribute("cx", centerX);
-        startCircle.setAttribute("cy", centerY);
-        startCircle.setAttribute("r", 2);
-        startCircle.setAttribute("stroke", "black");
-        startCircle.setAttribute("stroke-width", "1");
-        startCircle.setAttribute("fill", "black");
-        svg.appendChild(startCircle);
-    }
-}
-
-function rotatePoint(x, y, centerX, centerY, angle) {
-    const radians = (angle * Math.PI) / 180;
-    const cos = Math.cos(radians);
-    const sin = Math.sin(radians);
-    const dx = x - centerX;
-    const dy = y - centerY;
-
-    const nx = cos * dx - sin * dy + centerX;
-    const ny = sin * dx + cos * dy + centerY;
-    return { x: nx, y: ny };
-}
-
-function calculateStripAreas(radius, numStrips, stripWidth, excludeCenter) {
-    const stripAreas = [];
-    const innerRadius = excludeCenter ? stripWidth / 2 : 0;
-
-    for (let i = 0; i < numStrips; i++) {
-        const stripX1 = -radius + i * stripWidth;
-        const stripX2 = stripX1 + stripWidth;
-
-        let area = 0;
-        for (let x = stripX1; x <= stripX2; x += 0.01) {
-            const h1 = Math.sqrt(Math.max(0, radius * radius - x * x));
-            const h2 = Math.sqrt(Math.max(0, radius * radius - (x + 0.01) * x + 0.01));
-            area += 0.01 * (h1 + h2) / 2;
-        }
-
-        if (excludeCenter && stripX1 < innerRadius && stripX2 > -innerRadius) {
-            const stripInnerArea = calculateCircleSegmentArea(innerRadius, stripX1, stripX2);
-            area -= stripInnerArea;
-        }
-
-        stripAreas.push(area);
-    }
-
-    return stripAreas;
-}
-
-function calculateCircleSegmentArea(radius, x1, x2) {
-    const segmentArea = (radius ** 2) * (Math.acos(x1 / radius) - Math.acos(x2 / radius));
-    return segmentArea;
-}
-
-function findMaxEntriesAngle() {
-    const radius = parseFloat(document.getElementById("Radius").value) / 8;
-    const centerX = parseFloat(document.getElementById("centerX").value) / 8 + 250 + 65;
-    const centerY = parseFloat(document.getElementById("centerY").value) / -8 + 250 + 10;
-    const numStrips = parseInt(document.getElementById("numStrips").value);
-    const excludeCenter = document.getElementById("excludeCenter").checked;
-
-    let maxEntries = 0;
-    let bestAngle = 0;
-
-    for (let angle = 0; angle < 360; angle++) {
+        // Draw strips
         const stripWidth = (2 * radius) / numStrips;
         const stripCounts = Array(numStrips).fill(0);
+
+        for (let i = 0; i < numStrips; i++) {
+          const stripX = centerX - radius + i * stripWidth;
+
+          const rect = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "rect"
+          );
+          rect.setAttribute("x", stripX);
+          rect.setAttribute("y", centerY - radius);
+          rect.setAttribute("width", stripWidth);
+          rect.setAttribute("height", 2 * radius);
+          rect.setAttribute("stroke", "rgba(0,0,0, 0.1)");
+          rect.setAttribute("fill", `none`);
+          svg.appendChild(rect);
+        }
+
+        // Draw inner dashed circle if excludeCenter is checked
+        if (excludeCenter) {
+          const innerCircle = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle"
+          );
+          innerCircle.setAttribute("cx", centerX);
+          innerCircle.setAttribute("cy", centerY);
+          innerCircle.setAttribute("r", stripWidth / 2);
+          innerCircle.setAttribute("stroke", "rgba(0,0,0, 0.1)");
+          innerCircle.setAttribute("stroke-width", "1");
+          innerCircle.setAttribute("fill", "none");
+          innerCircle.setAttribute("stroke-dasharray", "2, 2");
+          svg.appendChild(innerCircle);
+        }
+
+        // Analyze data points
         const data = getDataFromTable(); // Assuming you have a function to get data points
 
-        data.forEach((point, index) => {
-            const rotatedPoint = rotatePoint(point.x, point.y, centerX, centerY, angle);
-            const distToCenter = Math.sqrt((rotatedPoint.x - centerX) ** 2 + (rotatedPoint.y - centerY) ** 2);
-            const isInsideCenter = excludeCenter && distToCenter < stripWidth / 2;
+        let maxEntries = 0;
+        let maxStripIndex = -1;
 
-            if (distToCenter <= radius && !isInsideCenter) {
-                const stripIndex = Math.floor((rotatedPoint.x - (centerX - radius)) / stripWidth);
-                if (stripIndex >= 0 && stripIndex < numStrips) {
-                    stripCounts[stripIndex]++;
-                }
+        data.forEach((point, index) => {
+          const rotatedPoint = rotatePoint(
+            point.x,
+            point.y,
+            centerX,
+            centerY,
+            rotationAngle
+          );
+          const distToCenter = Math.sqrt(
+            (rotatedPoint.x - centerX) ** 2 + (rotatedPoint.y - centerY) ** 2
+          );
+          const isInsideCenter = excludeCenter && distToCenter < stripWidth / 2;
+          const color =
+            distToCenter <= radius && !isInsideCenter ? "blue" : "red";
+          const fillColor =
+            distToCenter <= radius && !isInsideCenter
+              ? "lightblue"
+              : "lightcoral";
+
+          const ellipse = createCircleViewe(
+            index,
+            rotatedPoint.x,
+            rotatedPoint.y,
+            3,
+            0,
+            point.PA,
+            color,
+            fillColor
+          );
+          svg.appendChild(ellipse);
+
+          if (distToCenter <= radius && !isInsideCenter) {
+            const stripIndex = Math.floor(
+              (rotatedPoint.x - (centerX - radius)) / stripWidth
+            );
+            if (stripIndex >= 0 && stripIndex < numStrips) {
+              stripCounts[stripIndex]++;
+              if (stripCounts[stripIndex] > maxEntries) {
+                maxEntries = stripCounts[stripIndex];
+                maxStripIndex = stripIndex;
+              }
             }
+          }
         });
 
-        const maxInCurrentAngle = Math.max(...stripCounts);
-        if (maxInCurrentAngle > maxEntries) {
+        // Calculate areas of strips inside the circle
+        const totalCircleArea = Math.PI * radius * radius;
+        const stripAreas = calculateStripAreas(
+          radius,
+          numStrips,
+          stripWidth,
+          excludeCenter
+        );
+
+        const centralStripIndex = Math.floor(numStrips / 2);
+        // Display results
+        stripCounts.forEach((count, index) => {
+          const stripArea = stripAreas[index];
+
+          const stripAreaFraction = stripArea / stripAreas[centralStripIndex];
+          stripResults.innerHTML += `<div>Полоса ${
+            index + 1
+          }: ${count} входжень, Площа: ${stripArea.toFixed(
+            2
+          )}, Доля площі: ${stripAreaFraction.toFixed(4)}</div>`;
+        });
+
+        // Highlight ellipses in the strip with the most entries
+        if (maxStripIndex !== -1) {
+          data.forEach((point, index) => {
+            const rotatedPoint = rotatePoint(
+              point.x,
+              point.y,
+              centerX,
+              centerY,
+              rotationAngle
+            );
+            const distToCenter = Math.sqrt(
+              (rotatedPoint.x - centerX) ** 2 + (rotatedPoint.y - centerY) ** 2
+            );
+            const isInsideCenter =
+              excludeCenter && distToCenter < stripWidth / 2;
+
+            if (distToCenter <= radius && !isInsideCenter) {
+              const stripIndex = Math.floor(
+                (rotatedPoint.x - (centerX - radius)) / stripWidth
+              );
+              if (stripIndex === maxStripIndex) {
+                const ellipse = createCircleViewe(
+                  index,
+                  rotatedPoint.x,
+                  rotatedPoint.y,
+                  3,
+                  0,
+                  point.PA,
+                  "green",
+                  "lightgreen"
+                );
+                svg.appendChild(ellipse);
+              }
+            }
+          });
+        }
+
+        // Draw rotation line if showLine is checked
+        if (showLine) {
+          const lineLength = Math.max(2 * radius + 20, 2 * radius + 20);
+          const angleInRadians = (rotationAngle * Math.PI) / 180;
+
+          const startX = centerX - lineLength * Math.cos(angleInRadians);
+          const startY = centerY + lineLength * Math.sin(angleInRadians);
+          const endX = centerX + lineLength * Math.cos(angleInRadians);
+          const endY = centerY - lineLength * Math.sin(angleInRadians);
+
+          const line = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          line.setAttribute("x1", startX);
+          line.setAttribute("y1", startY);
+          line.setAttribute("x2", endX);
+          line.setAttribute("y2", endY);
+          line.setAttribute("stroke", "black");
+          line.setAttribute("stroke-width", "1");
+          line.setAttribute("stroke-dasharray", "5, 5");
+          svg.appendChild(line);
+
+          // Draw start circle for the line
+          const startCircle = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle"
+          );
+          startCircle.setAttribute("cx", centerX);
+          startCircle.setAttribute("cy", centerY);
+          startCircle.setAttribute("r", 2);
+          startCircle.setAttribute("stroke", "black");
+          startCircle.setAttribute("stroke-width", "1");
+          startCircle.setAttribute("fill", "black");
+          svg.appendChild(startCircle);
+        }
+      }
+
+      function rotatePoint(x, y, centerX, centerY, angle) {
+        const radians = (angle * Math.PI) / 180;
+        const cos = Math.cos(radians);
+        const sin = Math.sin(radians);
+        const dx = x - centerX;
+        const dy = y - centerY;
+
+        const nx = cos * dx - sin * dy + centerX;
+        const ny = sin * dx + cos * dy + centerY;
+        return { x: nx, y: ny };
+      }
+
+      function calculateStripAreas(
+        radius,
+        numStrips,
+        stripWidth,
+        excludeCenter
+      ) {
+        const stripAreas = [];
+        const innerRadius = excludeCenter ? stripWidth / 2 : 0;
+        // Calculate the index of the central strip
+        const centralStripIndex = Math.floor(numStrips / 2);
+
+        for (let i = 0; i < numStrips; i++) {
+          const stripX1 = -radius + i * stripWidth;
+          const stripX2 = stripX1 + stripWidth;
+
+          let area = 0;
+          for (let x = stripX1; x <= stripX2; x += 0.01) {
+            const h1 = Math.sqrt(Math.max(0, radius * radius - x * x));
+            const h2 = Math.sqrt(
+              Math.max(0, radius * radius - (x + 0.01) * x + 0.01)
+            );
+            area += (0.01 * (h1 + h2)) / 2;
+          }
+          //console.log(stripX1, stripX2);
+          if (excludeCenter && i === centralStripIndex) {
+            // console.log(stripX1, innerRadius, stripX2, -innerRadius);
+            const innerCircleArea = Math.PI * innerRadius * innerRadius;
+
+            area -= innerCircleArea;
+          }
+
+          stripAreas.push(area);
+        }
+
+        return stripAreas;
+      }
+
+      function calculateCircleSegmentArea(radius, x1, x2) {
+        const segmentArea =
+          radius ** 2 * (Math.acos(x1 / radius) - Math.acos(x2 / radius));
+        return segmentArea;
+      }
+
+      function findMaxEntriesAngle() {
+        const radius = parseFloat(document.getElementById("Radius").value) / 8;
+        const centerX =
+          parseFloat(document.getElementById("centerX").value) / 8 + 250 + 65;
+        const centerY =
+          parseFloat(document.getElementById("centerY").value) / -8 + 250 + 10;
+        const numStrips = parseInt(document.getElementById("numStrips").value);
+        const excludeCenter = document.getElementById("excludeCenter").checked;
+
+        let maxEntries = 0;
+        let bestAngle = 0;
+
+        for (let angle = 0; angle < 360; angle++) {
+          const stripWidth = (2 * radius) / numStrips;
+          const stripCounts = Array(numStrips).fill(0);
+          const data = getDataFromTable(); // Assuming you have a function to get data points
+
+          data.forEach((point, index) => {
+            const rotatedPoint = rotatePoint(
+              point.x,
+              point.y,
+              centerX,
+              centerY,
+              angle
+            );
+            const distToCenter = Math.sqrt(
+              (rotatedPoint.x - centerX) ** 2 + (rotatedPoint.y - centerY) ** 2
+            );
+            const isInsideCenter =
+              excludeCenter && distToCenter < stripWidth / 2;
+
+            if (distToCenter <= radius && !isInsideCenter) {
+              const stripIndex = Math.floor(
+                (rotatedPoint.x - (centerX - radius)) / stripWidth
+              );
+              if (stripIndex >= 0 && stripIndex < numStrips) {
+                stripCounts[stripIndex]++;
+              }
+            }
+          });
+
+          const maxInCurrentAngle = Math.max(...stripCounts);
+          if (maxInCurrentAngle > maxEntries) {
             maxEntries = maxInCurrentAngle;
             bestAngle = angle;
+          }
         }
-    }
 
-    const maxResults = document.getElementById("maxResults");
-    maxResults.innerHTML = `Максимальне входження: ${maxEntries} при куті: ${bestAngle} градусів`;
-    document.getElementById("rotationAngle").value = bestAngle;
-}
+        const maxResults = document.getElementById("maxResults");
+        maxResults.innerHTML = `Максимальне входження: ${maxEntries} при куті: ${bestAngle} градусів`;
+        document.getElementById("rotationAngle").value = bestAngle;
+      }
 
       // Function to create an editable table
       function createEditableTable(rows, cols) {
@@ -1291,7 +1388,7 @@ function findMaxEntriesAngle() {
           });
         });
 
-        const totalArea = Math.PI * (1.0 * ringDistance) ** 2;//numRings
+        const totalArea = Math.PI * (1.0 * ringDistance) ** 2; //numRings
         const resultsDiv = document.getElementById("results");
         resultsDiv.innerHTML = "";
         rings.forEach((count, index) => {
@@ -1353,7 +1450,7 @@ function findMaxEntriesAngle() {
         const margin = 55;
         const barWidth = (width - margin * 2) / data.length;
 
-        const maxDensity = 0.4;//Math.max(...data.map((d) => d.density));
+        const maxDensity = 0.4; //Math.max(...data.map((d) => d.density));
 
         // Create X and Y axes
         const xAxis = document.createElementNS(
@@ -1397,7 +1494,9 @@ function findMaxEntriesAngle() {
             text.setAttribute("text-anchor", "middle");
             text.setAttribute("font-size", "18");
             text.setAttribute("font-family", "Arial");
-            text.textContent = (i * (document.getElementById("ringWith").value)).toFixed(2); // Adjust label value
+            text.textContent = (
+              i * document.getElementById("ringWith").value
+            ).toFixed(2); // Adjust label value
             svg.appendChild(text);
           }
 
@@ -1464,12 +1563,12 @@ function findMaxEntriesAngle() {
           const barHeight = (d.density / maxDensity) * (height - margin * 2);
 
           let adjustedBarWidth = barWidth;
-    const x = margin + index * barWidth;
+          const x = margin + index * barWidth;
 
-    // Adjust the width of the last bar if it doesn't fit
-    if (index === data.length - 1 && x + barWidth > width - margin) {
-      adjustedBarWidth = width - margin - x;
-    }
+          // Adjust the width of the last bar if it doesn't fit
+          if (index === data.length - 1 && x + barWidth > width - margin) {
+            adjustedBarWidth = width - margin - x;
+          }
 
           const rect = document.createElementNS(
             "http://www.w3.org/2000/svg",
@@ -1520,23 +1619,26 @@ function findMaxEntriesAngle() {
 
         // Create bars with borders and tooltips
         data.forEach((d, index) => {
-    const barHeight = (d.density / maxDensity) * (height - margin * 2);
-    let adjustedBarWidth = barWidth;
-    const x = margin + index * barWidth;
+          const barHeight = (d.density / maxDensity) * (height - margin * 2);
+          let adjustedBarWidth = barWidth;
+          const x = margin + index * barWidth;
 
-    // Adjust the width of the last bar if it doesn't fit
-    if (index === data.length - 1 && x + barWidth > width - margin) {
-      adjustedBarWidth = width - margin - x;
-    }
+          // Adjust the width of the last bar if it doesn't fit
+          if (index === data.length - 1 && x + barWidth > width - margin) {
+            adjustedBarWidth = width - margin - x;
+          }
 
-    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    rect.setAttribute("x", x);
-    rect.setAttribute("y", height - margin - barHeight);
-    rect.setAttribute("width", adjustedBarWidth);
-    rect.setAttribute("height", barHeight);
-    rect.setAttribute("fill", "rgb(211, 211, 211)");
-    rect.setAttribute("stroke", "black");
-    rect.setAttribute("stroke-width", "1");
+          const rect = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "rect"
+          );
+          rect.setAttribute("x", x);
+          rect.setAttribute("y", height - margin - barHeight);
+          rect.setAttribute("width", adjustedBarWidth);
+          rect.setAttribute("height", barHeight);
+          rect.setAttribute("fill", "rgb(211, 211, 211)");
+          rect.setAttribute("stroke", "black");
+          rect.setAttribute("stroke-width", "1");
 
           // Tooltip (title attribute)
           rect.setAttribute("title", `Density: ${d.density}`);
