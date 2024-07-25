@@ -1330,7 +1330,7 @@
           });
         });
 
-        const totalArea = Math.PI * (numRings * ringDistance) ** 2;
+        const totalArea = Math.PI * (1.0 * ringDistance) ** 2;//numRings
         const resultsDiv = document.getElementById("results");
         resultsDiv.innerHTML = "";
         rings.forEach((count, index) => {
