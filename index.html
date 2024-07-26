@@ -283,7 +283,15 @@
         scale: 1.6;
         font-family: unset;
       }
+/* Спочатку приховуємо спільний div */
+.shared-content {
+  display: none;
+}
 
+/* Відображаємо спільний div для вкладок tab-1, tab-2, tab-3 */
+.show-shared-content .shared-content {
+  display: block;
+}
       @media (max-width: 800px) {
         header {
           flex-wrap: wrap;
@@ -414,7 +422,7 @@
           preserveAspectRatio="xMidYMid meet"
         ></svg>
       </content>
-      <nav>
+      <nav class = "show-shared-content">
         <ul class="tabs">
           <li class="tab-link active" data-tab="tab-1">C-I-O</li>
           <li class="tab-link" data-tab="tab-2">Line</li>
@@ -422,12 +430,21 @@
           <li class="tab-link" data-tab="tab-4">E</li>
           <li class="tab-link" data-tab="tab-5">Analysis of directionality</li>
         </ul>
-
-        <div id="tab-1" class="tab-content active">
-          <b>C-I-O</b>
+        <div class="shared-content">
+          <p>Це спільний вміст для вкладок tab-1, tab-2, tab-3</p>
           <label for="Radius">Радіус скупчення:</label>
           <input type="number" id="Radius" value="calculateClusterRadius()" />
           <br />
+          <label for="centerX">Координата X центру:</label>
+          <input type="number" id="centerX" value="0" />
+          <br />
+          <label for="centerY">Координата Y центру:</label>
+          <input type="number" id="centerY" value="0" />
+          <br />
+        </div>
+        <div id="tab-1" class="tab-content active">
+          <b>C-I-O</b>
+          
           <label for="ringWith">Width:</label>
           <input type="number" id="ringWith" value="0.15" step="0.05" />
           <br />
@@ -436,12 +453,6 @@
           <br />
           <label for="ringDistance">Відстань між кільцями:</label>
           <input type="number" id="ringDistance" value="250" disabled />
-          <br />
-          <label for="centerX">Координата X центру:</label>
-          <input type="number" id="centerX" value="0" />
-          <br />
-          <label for="centerY">Координата Y центру:</label>
-          <input type="number" id="centerY" value="0" />
           <br />
           <label for="showRings"
             >Показати галактики які беруть участь у розрахунках:</label
@@ -502,18 +513,7 @@
             <label for="numStrips">Кількість полос:</label>
             <input type="number" id="numStrips" value="5" />
           </div>
-          <div>
-            <label for="centerX">Координата X центру:</label>
-            <input type="number" id="centerX" value="0" />
-          </div>
-          <div>
-            <label for="centerY">Координата Y центру:</label>
-            <input type="number" id="centerY" value="0" />
-          </div>
-          <div>
-            <label for="Radius">Радіус кола:</label>
-            <input type="number" id="Radius" value="0" />
-          </div>
+      
           <div>
             <label for="excludeCenter">Виключити центр:</label>
             <input type="checkbox" id="excludeCenter" />
@@ -607,20 +607,29 @@
         document.querySelector("nav").classList.toggle("show-content");
       }
 
-      document.querySelectorAll(".tab-link").forEach((tab) => {
-        tab.addEventListener("click", function () {
-          document.querySelectorAll(".tab-link").forEach((link) => {
-            link.classList.remove("active");
-          });
-          document.querySelectorAll(".tab-content").forEach((content) => {
-            content.classList.remove("active");
-          });
-          this.classList.add("active");
-          document
-            .getElementById(this.getAttribute("data-tab"))
-            .classList.add("active");
-        });
-      });
+      document.querySelectorAll('.tab-link').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    var tabID = this.getAttribute('data-tab');
+
+    document.querySelectorAll('.tab-link').forEach(function(link) {
+      link.classList.remove('active');
+    });
+
+    document.querySelectorAll('.tab-content').forEach(function(content) {
+      content.classList.remove('active');
+    });
+
+    this.classList.add('active');
+    document.getElementById(tabID).classList.add('active');
+
+    // Перевіряємо, чи активна вкладка є однією з tab-1, tab-2, tab-3
+    if (tabID === 'tab-1' || tabID === 'tab-2' || tabID === 'tab-3') {
+      document.querySelector('nav').classList.add('show-shared-content');
+    } else {
+      document.querySelector('nav').classList.remove('show-shared-content');
+    }
+  });
+});
       // ----------------
       function sortTable(columnIndex) {
         var table = document.getElementById("editableTable");
