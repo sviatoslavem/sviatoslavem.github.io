@@ -13,7 +13,9 @@
         --border-color: #a4a4a4;
         --text-color: #333;
       }
-
+*{
+  box-sizing: border-box;
+}
       body {
         display: flex;
         flex-direction: column;
@@ -190,13 +192,14 @@
       }
 
       nav .tab-link {
-        padding: 10px;
+        padding: 12px 10px;
         cursor: pointer;
         color: white;
         text-align: center;
         background: var(--secondary-color);
         border: none;
-        border-radius: 4px;
+        
+        height: 100%;
       }
 
       nav .tab-link:hover {
@@ -210,7 +213,7 @@
       }
 
       /* Styles for tab content */
-      .tab-content {
+      .tab-content, .shared-content {
         display: none;
         padding: 20px;
         background-color: white;
@@ -292,6 +295,52 @@
 .show-shared-content .shared-content {
   display: block;
 }
+
+.text-field {
+  margin-bottom: 1rem;
+}
+
+.text-field__label {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.text-field__input {
+  display: block;
+  width: 100%;
+  height: calc(2.25rem + 2px);
+  padding: 0.375rem 0.75rem;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #bdbdbd;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.text-field__input::placeholder {
+  color: #212529;
+  opacity: 0.4;
+}
+
+.text-field__input:focus {
+  color: #212529;
+  background-color: #fff;
+  border-color: #bdbdbd;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(158, 158, 158, 0.25);
+}
+
+.text-field__input:disabled,
+.text-field__input[readonly] {
+  background-color: #f5f5f5;
+  opacity: 1;
+}
+
       @media (max-width: 800px) {
         header {
           flex-wrap: wrap;
@@ -431,63 +480,48 @@
           <li class="tab-link" data-tab="tab-5">Analysis of directionality</li>
         </ul>
         <div class="shared-content">
-          <p>Це спільний вміст для вкладок tab-1, tab-2, tab-3</p>
-          <label for="Radius">Радіус скупчення:</label>
-          <input type="number" id="Radius" value="calculateClusterRadius()" />
-          <br />
-          <label for="centerX">Координата X центру:</label>
-          <input type="number" id="centerX" value="0" />
-          <br />
-          <label for="centerY">Координата Y центру:</label>
-          <input type="number" id="centerY" value="0" />
-          <br />
+          <div class="text-field">
+            <label for="Radius" class="text-field__label">Радіус скупчення:</label>
+            <input type="number" id="Radius" class="text-field__input" value="calculateClusterRadius()" />
+          </div>
+          <div class="text-field">
+            <label for="centerX" class="text-field__label">Координата X центру:</label>
+            <input type="number" id="centerX" class="text-field__input" value="0" />
+          </div>
+          <div class="text-field">
+            <label for="centerY" class="text-field__label">Координата Y центру:</label>
+            <input type="number" id="centerY" class="text-field__input" value="0" />
+          </div>
         </div>
+      
         <div id="tab-1" class="tab-content active">
           <b>C-I-O</b>
-          
-          <label for="ringWith">Width:</label>
-          <input type="number" id="ringWith" value="0.15" step="0.05" />
-          <br />
-          <label for="numRings">Кількість кілець:</label>
-          <input type="number" id="numRings" value="5" disabled />
-          <br />
-          <label for="ringDistance">Відстань між кільцями:</label>
-          <input type="number" id="ringDistance" value="250" disabled />
-          <br />
-          <label for="showRings"
-            >Показати галактики які беруть участь у розрахунках:</label
-          >
-          <input
-            type="checkbox"
-            id="showRings"
-            checked
-            onchange="toggleRings()"
-          />
+          <div class="text-field">
+            <label for="ringWith" class="text-field__label">Width:</label>
+            <input type="number" id="ringWith" class="text-field__input" value="0.15" step="0.05" />
+          </div>
+          <div class="text-field">
+            <label for="numRings" class="text-field__label">Кількість кілець:</label>
+            <input type="number" id="numRings" class="text-field__input" value="5" disabled />
+          </div>
+          <div class="text-field">
+            <label for="ringDistance" class="text-field__label">Відстань між кільцями:</label>
+            <input type="number" id="ringDistance" class="text-field__input" value="250" disabled />
+          </div>
+          <label for="showRings">Показати галактики які беруть участь у розрахунках:</label>
+          <input type="checkbox" id="showRings" checked onchange="toggleRings()" />
           <br />
           <label for="densityCalculation1">
-            <input
-              type="radio"
-              id="densityCalculation1"
-              name="densityCalculation"
-              value="method1"
-              checked
-            />
+            <input type="radio" id="densityCalculation1" name="densityCalculation" value="method1" checked />
             Враховувати долю площі
           </label>
           <label for="densityCalculation2">
-            <input
-              type="radio"
-              id="densityCalculation2"
-              name="densityCalculation"
-              value="method2"
-            />
+            <input type="radio" id="densityCalculation2" name="densityCalculation" value="method2" />
             Не враховувати долю площі
           </label>
           <br />
           <br />
-          <button onclick="analyzeConcentration()">
-            Аналізувати концентрацію
-          </button>
+          <button onclick="analyzeConcentration()">Аналізувати концентрацію</button>
           <div id="progressContainer">
             <button
               onclick='findHighestDensityCenter(
@@ -505,28 +539,26 @@
           </div>
           <div id="results"></div>
         </div>
+      
         <div id="tab-2" class="tab-content">
           <b>Line</b>
           <br />
-          <br />
-          <div>
-            <label for="numStrips">Кількість полос:</label>
-            <input type="number" id="numStrips" value="5" />
+          <div class="text-field">
+            <label for="numStrips" class="text-field__label">Кількість полос:</label>
+            <input type="number" id="numStrips" class="text-field__input" value="5" />
           </div>
-      
-          <div>
-            <label for="excludeCenter">Виключити центр:</label>
+          <div class="text-field">
+            <label for="excludeCenter" class="text-field__label">Виключити центр:</label>
             <input type="checkbox" id="excludeCenter" />
           </div>
-          <div>
-            <label for="rotationAngle">rotationAngle:</label>
-            <input type="number" id="rotationAngle" value="0" />
+          <div class="text-field">
+            <label for="rotationAngle" class="text-field__label">rotationAngle:</label>
+            <input type="number" id="rotationAngle" class="text-field__input" value="0" />
           </div>
-          <div>
-            <label for="showLine">Show axis line:</label>
+          <div class="text-field">
+            <label for="showLine" class="text-field__label">Show axis line:</label>
             <input type="checkbox" id="showLine" />
           </div>
-
           <button onclick="analyzeByStrips()">Аналізувати скупчення</button>
           <br />
           <button onclick="findMaxEntriesAngle()">findMaxEntriesAngle</button>
@@ -534,59 +566,51 @@
           <div id="maxResults"></div>
           <div id="stripResults"></div>
         </div>
+      
         <div id="tab-3" class="tab-content">Вміст вкладки 3</div>
+      
         <div id="tab-4" class="tab-content">
           <b>E</b>
-          <br />
           <br />
           <button onclick="drawHistogramEllipticities(getDataFromTable(), 10)">
             Аналізувати E
           </button>
         </div>
+      
         <div id="tab-5" class="tab-content">
           <b>Analysis of directionality</b>
           <br />
-          <br />
-          <label for="AngleDifference">AngleDifference:</label>
-          <input type="number" id="AngelDifference" value="15" />
-          <br />
-          <label for="ResizeM">Resize m':</label>
-          <input type="number" id="ResizeM" value="0" />
-          <br />
-
+          <div class="text-field">
+            <label for="AngleDifference" class="text-field__label">AngleDifference:</label>
+            <input type="number" id="AngelDifference" class="text-field__input" value="15" />
+          </div>
+          <div class="text-field">
+            <label for="ResizeM" class="text-field__label">Resize m':</label>
+            <input type="number" id="ResizeM" class="text-field__input" value="0" />
+          </div>
           <label for="directionLine">Show the direction line:</label>
           <input type="checkbox" id="directionLine" checked />
           <br />
-
-          <label for="distantLine"
-            >Show the line to the 1st minimally distant galaxy:</label
-          >
+          <label for="distantLine">Show the line to the 1st minimally distant galaxy:</label>
           <input type="checkbox" id="distantLine" checked />
-
           <br />
-          <label for="eLimit">Обмеження E (більше за):</label>
-          <input type="number" id="eLimit" value="0.2" step="0.01" />
-          <br />
-          <label for="mLimit">Обмеження m' (більше за):</label>
-          <input type="number" id="mLimit" value="3" step="0.1" />
-          <br />
-          <label for="ShowAllGalaxies"
-            >Show all galaxies inside the filter:</label
-          >
+          <div class="text-field">
+            <label for="eLimit" class="text-field__label">Обмеження E (більше за):</label>
+            <input type="number" id="eLimit" class="text-field__input" value="0.2" step="0.01" />
+          </div>
+          <div class="text-field">
+            <label for="mLimit" class="text-field__label">Обмеження m' (більше за):</label>
+            <input type="number" id="mLimit" class="text-field__input" value="3" step="0.1" />
+          </div>
+          <label for="ShowAllGalaxies">Show all galaxies inside the filter:</label>
           <input type="checkbox" id="ShowAllGalaxies" checked />
           <br />
-          <label for="showOutOfFilterGalaxies"
-            >Show all galaxies outside the filter:</label
-          >
+          <label for="showOutOfFilterGalaxies">Show all galaxies outside the filter:</label>
           <input type="checkbox" id="showOutOfFilterGalaxies" checked />
           <br />
-          <br />
-          <button
-            onclick="findNearbyGalaxiesWithSimilarOrientation(getDataFromTable())"
-          >
+          <button onclick="findNearbyGalaxiesWithSimilarOrientation(getDataFromTable())">
             Аналізувати PA
           </button>
-
           <br />
           <br />
           <div id="resultsPA"></div>
