@@ -13,9 +13,9 @@
         --border-color: #a4a4a4;
         --text-color: #333;
       }
-*{
-  box-sizing: border-box;
-}
+      * {
+        box-sizing: border-box;
+      }
       body {
         display: flex;
         flex-direction: column;
@@ -198,8 +198,11 @@
         text-align: center;
         background: var(--secondary-color);
         border: none;
-        
         height: 100%;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        justify-content: center;
       }
 
       nav .tab-link:hover {
@@ -213,22 +216,24 @@
       }
 
       /* Styles for tab content */
-      .tab-content, .shared-content {
+      .tab-content,
+      .shared-content {
         display: none;
-        padding: 20px;
+        padding: 0 20px;
         background-color: white;
         border: 1px solid var(--border-color);
         border-top: none;
         margin-top: -1px;
       }
-
+      .tab-content {
+        padding-bottom: 20px;
+      }
       .tab-content.active {
         display: block;
       }
 
       #tab-1 label {
         display: block;
-        margin-top: 10px;
       }
 
       #tab-1 button {
@@ -286,60 +291,61 @@
         scale: 1.6;
         font-family: unset;
       }
-/* Спочатку приховуємо спільний div */
-.shared-content {
-  display: none;
-}
+      /* Спочатку приховуємо спільний div */
+      .shared-content {
+        display: none;
+        padding-top: 25px;
+      }
 
-/* Відображаємо спільний div для вкладок tab-1, tab-2, tab-3 */
-.show-shared-content .shared-content {
-  display: block;
-}
+      /* Відображаємо спільний div для вкладок tab-1, tab-2, tab-3 */
+      .show-shared-content .shared-content {
+        display: block;
+      }
 
-.text-field {
-  margin-bottom: 1rem;
-}
+      .text-field {
+        margin-bottom: 1rem;
+      }
 
-.text-field__label {
-  display: block;
-  margin-bottom: 0.25rem;
-}
+      .text-field__label {
+        display: block;
+        margin-bottom: 0.25rem;
+      }
 
-.text-field__input {
-  display: block;
-  width: 100%;
-  height: calc(2.25rem + 2px);
-  padding: 0.375rem 0.75rem;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5;
-  color: #212529;
-  background-color: #fff;
-  background-clip: padding-box;
-  border: 1px solid #bdbdbd;
-  border-radius: 0.25rem;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
+      .text-field__input {
+        display: block;
+        width: 100%;
+        height: calc(2.25rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #bdbdbd;
+        border-radius: 0.25rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+      }
 
-.text-field__input::placeholder {
-  color: #212529;
-  opacity: 0.4;
-}
+      .text-field__input::placeholder {
+        color: #212529;
+        opacity: 0.4;
+      }
 
-.text-field__input:focus {
-  color: #212529;
-  background-color: #fff;
-  border-color: #bdbdbd;
-  outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(158, 158, 158, 0.25);
-}
+      .text-field__input:focus {
+        color: #212529;
+        background-color: #fff;
+        border-color: #bdbdbd;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(158, 158, 158, 0.25);
+      }
 
-.text-field__input:disabled,
-.text-field__input[readonly] {
-  background-color: #f5f5f5;
-  opacity: 1;
-}
+      .text-field__input:disabled,
+      .text-field__input[readonly] {
+        background-color: #f5f5f5;
+        opacity: 1;
+      }
 
       @media (max-width: 800px) {
         header {
@@ -471,7 +477,7 @@
           preserveAspectRatio="xMidYMid meet"
         ></svg>
       </content>
-      <nav class = "show-shared-content">
+      <nav class="show-shared-content">
         <ul class="tabs">
           <li class="tab-link active" data-tab="tab-1">C-I-O</li>
           <li class="tab-link" data-tab="tab-2">Line</li>
@@ -481,47 +487,109 @@
         </ul>
         <div class="shared-content">
           <div class="text-field">
-            <label for="Radius" class="text-field__label">Радіус скупчення:</label>
-            <input type="number" id="Radius" class="text-field__input" value="calculateClusterRadius()" />
+            <label for="Radius" class="text-field__label"
+              >Радіус скупчення:</label
+            >
+            <input
+              type="number"
+              id="Radius"
+              class="text-field__input"
+              value="calculateClusterRadius()"
+            />
           </div>
           <div class="text-field">
-            <label for="centerX" class="text-field__label">Координата X центру:</label>
-            <input type="number" id="centerX" class="text-field__input" value="0" />
+            <label for="centerX" class="text-field__label"
+              >Координата X центру:</label
+            >
+            <input
+              type="number"
+              id="centerX"
+              class="text-field__input"
+              value="0"
+            />
           </div>
           <div class="text-field">
-            <label for="centerY" class="text-field__label">Координата Y центру:</label>
-            <input type="number" id="centerY" class="text-field__input" value="0" />
+            <label for="centerY" class="text-field__label"
+              >Координата Y центру:</label
+            >
+            <input
+              type="number"
+              id="centerY"
+              class="text-field__input"
+              value="0"
+            />
           </div>
         </div>
-      
+
         <div id="tab-1" class="tab-content active">
-          <b>C-I-O</b>
           <div class="text-field">
             <label for="ringWith" class="text-field__label">Width:</label>
-            <input type="number" id="ringWith" class="text-field__input" value="0.15" step="0.05" />
+            <input
+              type="number"
+              id="ringWith"
+              class="text-field__input"
+              value="0.15"
+              step="0.05"
+            />
           </div>
           <div class="text-field">
-            <label for="numRings" class="text-field__label">Кількість кілець:</label>
-            <input type="number" id="numRings" class="text-field__input" value="5" disabled />
+            <label for="numRings" class="text-field__label"
+              >Кількість кілець:</label
+            >
+            <input
+              type="number"
+              id="numRings"
+              class="text-field__input"
+              value="5"
+              disabled
+            />
           </div>
           <div class="text-field">
-            <label for="ringDistance" class="text-field__label">Відстань між кільцями:</label>
-            <input type="number" id="ringDistance" class="text-field__input" value="250" disabled />
+            <label for="ringDistance" class="text-field__label"
+              >Відстань між кільцями:</label
+            >
+            <input
+              type="number"
+              id="ringDistance"
+              class="text-field__input"
+              value="250"
+              disabled
+            />
           </div>
-          <label for="showRings">Показати галактики які беруть участь у розрахунках:</label>
-          <input type="checkbox" id="showRings" checked onchange="toggleRings()" />
+          <label for="showRings"
+            >Показати галактики які беруть участь у розрахунках:</label
+          >
+          <input
+            type="checkbox"
+            id="showRings"
+            checked
+            onchange="toggleRings()"
+          />
           <br />
           <label for="densityCalculation1">
-            <input type="radio" id="densityCalculation1" name="densityCalculation" value="method1" checked />
+            <input
+              type="radio"
+              id="densityCalculation1"
+              name="densityCalculation"
+              value="method1"
+              checked
+            />
             Враховувати долю площі
           </label>
           <label for="densityCalculation2">
-            <input type="radio" id="densityCalculation2" name="densityCalculation" value="method2" />
+            <input
+              type="radio"
+              id="densityCalculation2"
+              name="densityCalculation"
+              value="method2"
+            />
             Не враховувати долю площі
           </label>
           <br />
           <br />
-          <button onclick="analyzeConcentration()">Аналізувати концентрацію</button>
+          <button onclick="analyzeConcentration()">
+            Аналізувати концентрацію
+          </button>
           <div id="progressContainer">
             <button
               onclick='findHighestDensityCenter(
@@ -539,24 +607,40 @@
           </div>
           <div id="results"></div>
         </div>
-      
+
         <div id="tab-2" class="tab-content">
-          <b>Line</b>
-          <br />
           <div class="text-field">
-            <label for="numStrips" class="text-field__label">Кількість полос:</label>
-            <input type="number" id="numStrips" class="text-field__input" value="5" />
+            <label for="numStrips" class="text-field__label"
+              >Кількість полос:</label
+            >
+            <input
+              type="number"
+              id="numStrips"
+              class="text-field__input"
+              value="5"
+            />
           </div>
           <div class="text-field">
-            <label for="excludeCenter" class="text-field__label">Виключити центр:</label>
+            <label for="excludeCenter" class="text-field__label"
+              >Виключити центр:</label
+            >
             <input type="checkbox" id="excludeCenter" />
           </div>
           <div class="text-field">
-            <label for="rotationAngle" class="text-field__label">rotationAngle:</label>
-            <input type="number" id="rotationAngle" class="text-field__input" value="0" />
+            <label for="rotationAngle" class="text-field__label"
+              >rotationAngle:</label
+            >
+            <input
+              type="number"
+              id="rotationAngle"
+              class="text-field__input"
+              value="0"
+            />
           </div>
           <div class="text-field">
-            <label for="showLine" class="text-field__label">Show axis line:</label>
+            <label for="showLine" class="text-field__label"
+              >Show axis line:</label
+            >
             <input type="checkbox" id="showLine" />
           </div>
           <button onclick="analyzeByStrips()">Аналізувати скупчення</button>
@@ -566,9 +650,9 @@
           <div id="maxResults"></div>
           <div id="stripResults"></div>
         </div>
-      
+
         <div id="tab-3" class="tab-content">Вміст вкладки 3</div>
-      
+
         <div id="tab-4" class="tab-content">
           <b>E</b>
           <br />
@@ -576,39 +660,75 @@
             Аналізувати E
           </button>
         </div>
-      
+
         <div id="tab-5" class="tab-content">
           <b>Analysis of directionality</b>
           <br />
           <div class="text-field">
-            <label for="AngleDifference" class="text-field__label">AngleDifference:</label>
-            <input type="number" id="AngelDifference" class="text-field__input" value="15" />
+            <label for="AngleDifference" class="text-field__label"
+              >AngleDifference:</label
+            >
+            <input
+              type="number"
+              id="AngelDifference"
+              class="text-field__input"
+              value="15"
+            />
           </div>
           <div class="text-field">
             <label for="ResizeM" class="text-field__label">Resize m':</label>
-            <input type="number" id="ResizeM" class="text-field__input" value="0" />
+            <input
+              type="number"
+              id="ResizeM"
+              class="text-field__input"
+              value="0"
+            />
           </div>
           <label for="directionLine">Show the direction line:</label>
           <input type="checkbox" id="directionLine" checked />
           <br />
-          <label for="distantLine">Show the line to the 1st minimally distant galaxy:</label>
+          <label for="distantLine"
+            >Show the line to the 1st minimally distant galaxy:</label
+          >
           <input type="checkbox" id="distantLine" checked />
           <br />
           <div class="text-field">
-            <label for="eLimit" class="text-field__label">Обмеження E (більше за):</label>
-            <input type="number" id="eLimit" class="text-field__input" value="0.2" step="0.01" />
+            <label for="eLimit" class="text-field__label"
+              >Обмеження E (більше за):</label
+            >
+            <input
+              type="number"
+              id="eLimit"
+              class="text-field__input"
+              value="0.2"
+              step="0.01"
+            />
           </div>
           <div class="text-field">
-            <label for="mLimit" class="text-field__label">Обмеження m' (більше за):</label>
-            <input type="number" id="mLimit" class="text-field__input" value="3" step="0.1" />
+            <label for="mLimit" class="text-field__label"
+              >Обмеження m' (більше за):</label
+            >
+            <input
+              type="number"
+              id="mLimit"
+              class="text-field__input"
+              value="3"
+              step="0.1"
+            />
           </div>
-          <label for="ShowAllGalaxies">Show all galaxies inside the filter:</label>
+          <label for="ShowAllGalaxies"
+            >Show all galaxies inside the filter:</label
+          >
           <input type="checkbox" id="ShowAllGalaxies" checked />
           <br />
-          <label for="showOutOfFilterGalaxies">Show all galaxies outside the filter:</label>
+          <label for="showOutOfFilterGalaxies"
+            >Show all galaxies outside the filter:</label
+          >
           <input type="checkbox" id="showOutOfFilterGalaxies" checked />
           <br />
-          <button onclick="findNearbyGalaxiesWithSimilarOrientation(getDataFromTable())">
+          <button
+            onclick="findNearbyGalaxiesWithSimilarOrientation(getDataFromTable())"
+          >
             Аналізувати PA
           </button>
           <br />
@@ -631,29 +751,31 @@
         document.querySelector("nav").classList.toggle("show-content");
       }
 
-      document.querySelectorAll('.tab-link').forEach(function(tab) {
-  tab.addEventListener('click', function() {
-    var tabID = this.getAttribute('data-tab');
+      document.querySelectorAll(".tab-link").forEach(function (tab) {
+        tab.addEventListener("click", function () {
+          var tabID = this.getAttribute("data-tab");
 
-    document.querySelectorAll('.tab-link').forEach(function(link) {
-      link.classList.remove('active');
-    });
+          document.querySelectorAll(".tab-link").forEach(function (link) {
+            link.classList.remove("active");
+          });
 
-    document.querySelectorAll('.tab-content').forEach(function(content) {
-      content.classList.remove('active');
-    });
+          document.querySelectorAll(".tab-content").forEach(function (content) {
+            content.classList.remove("active");
+          });
 
-    this.classList.add('active');
-    document.getElementById(tabID).classList.add('active');
+          this.classList.add("active");
+          document.getElementById(tabID).classList.add("active");
 
-    // Перевіряємо, чи активна вкладка є однією з tab-1, tab-2, tab-3
-    if (tabID === 'tab-1' || tabID === 'tab-2' || tabID === 'tab-3') {
-      document.querySelector('nav').classList.add('show-shared-content');
-    } else {
-      document.querySelector('nav').classList.remove('show-shared-content');
-    }
-  });
-});
+          // Перевіряємо, чи активна вкладка є однією з tab-1, tab-2, tab-3
+          if (tabID === "tab-1" || tabID === "tab-2" || tabID === "tab-3") {
+            document.querySelector("nav").classList.add("show-shared-content");
+          } else {
+            document
+              .querySelector("nav")
+              .classList.remove("show-shared-content");
+          }
+        });
+      });
       // ----------------
       function sortTable(columnIndex) {
         var table = document.getElementById("editableTable");
@@ -725,6 +847,211 @@
         drawEllipses();
       }
 
+      function drawDensityHistogram(data, numBins) {
+        const svg = document.getElementById("histogramSVG");
+        svg.innerHTML = "";
+
+        const width = 575;
+        const height = 545;
+        const margin = 55;
+
+        // Extract counts and ringFractions
+        const counts = data.map((d) => d.count);
+        const ringFractions = data.map((d) => d.ringFraction);
+
+        // Calculate densities
+        const totalGalaxies = counts.reduce((sum, count) => sum + count, 0);
+        const densities = counts.map(
+          (count, index) => count / totalGalaxies / ringFractions[index]
+        );
+
+        // Normalize bin values
+        const maxDensity = 0.5; //Math.max(...densities);
+        const barWidth = (width - margin * 2) / numBins;
+
+        // Create X and Y axes
+        const xAxis = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "line"
+        );
+        xAxis.setAttribute("x1", margin);
+        xAxis.setAttribute("y1", height - margin);
+        xAxis.setAttribute("x2", width - margin);
+        xAxis.setAttribute("y2", height - margin);
+        xAxis.setAttribute("stroke-width", "2");
+        xAxis.setAttribute("stroke", "black");
+        svg.appendChild(xAxis);
+
+        const yAxis = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "line"
+        );
+        yAxis.setAttribute("x1", margin);
+        yAxis.setAttribute("y1", margin);
+        yAxis.setAttribute("x2", margin);
+        yAxis.setAttribute("y2", height - margin);
+        yAxis.setAttribute("stroke-width", "2");
+        yAxis.setAttribute("stroke", "black");
+        svg.appendChild(yAxis);
+
+        // Create X axis labels and ticks
+        for (let i = 0; i <= numBins; i++) {
+          const x = margin + i * barWidth;
+
+          // Labels
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          text.setAttribute("x", x);
+          text.setAttribute("y", height - margin + 25);
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("font-size", "18");
+          text.setAttribute("font-family", "Arial");
+          text.textContent = ((i * 2) / numBins - 1).toFixed(2);
+          svg.appendChild(text);
+
+          // Ticks
+          const tick = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          tick.setAttribute("x1", x);
+          tick.setAttribute("y1", height - margin);
+          tick.setAttribute("x2", x);
+          tick.setAttribute("y2", height - margin + 5);
+          tick.setAttribute("stroke", "black");
+          svg.appendChild(tick);
+        }
+
+        // Create Y axis labels, ticks, and grid lines
+        const yAxisSteps = 5;
+        for (let i = 0; i <= yAxisSteps; i++) {
+          const y = height - margin - ((height - margin * 2) / yAxisSteps) * i;
+          const densityValue = ((maxDensity * i) / yAxisSteps).toFixed(2);
+
+          // Labels
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          text.setAttribute("x", margin - 10);
+          text.setAttribute("y", y + 3);
+          text.setAttribute("text-anchor", "end");
+          text.setAttribute("font-size", "18");
+          text.setAttribute("font-family", "Arial");
+          text.textContent = i === yAxisSteps ? "" : densityValue; // Hide the text for the last value
+          svg.appendChild(text);
+
+          // Ticks
+          const tick = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          tick.setAttribute("x1", margin - 5);
+          tick.setAttribute("y1", y);
+          tick.setAttribute("x2", margin);
+          tick.setAttribute("y2", y);
+          tick.setAttribute("stroke", "black");
+          svg.appendChild(tick);
+
+          // Grid lines
+          const gridLine = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          gridLine.setAttribute("x1", margin);
+          gridLine.setAttribute("y1", y);
+          gridLine.setAttribute("x2", width - margin);
+          gridLine.setAttribute("y2", y);
+          gridLine.setAttribute("stroke", "lightgray");
+          gridLine.setAttribute("stroke-dasharray", "2,2");
+          svg.appendChild(gridLine);
+        }
+
+        // Create bars with borders
+        densities.forEach((density, index) => {
+          const barHeight = (density / maxDensity) * (height - margin * 2);
+          const rect = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "rect"
+          );
+          rect.setAttribute("x", margin + index * barWidth);
+          rect.setAttribute("y", height - margin - barHeight);
+          rect.setAttribute("width", barWidth);
+          rect.setAttribute("height", barHeight);
+          rect.setAttribute("fill", "rgb(211, 211, 211)");
+          rect.setAttribute("stroke", "black");
+          rect.setAttribute("stroke-width", "1");
+
+          // Tooltip (title attribute)
+          rect.setAttribute("title", `Density: ${density.toFixed(4)}`);
+
+          // Mouseover event listener for tooltip
+          rect.addEventListener("mouseover", (event) => {
+            const tooltip = document.getElementById("tooltip");
+            tooltip.textContent = `Density: ${density.toFixed(4)}`;
+            tooltip.style.display = "block";
+            tooltip.style.top = `${event.clientY}px`;
+            tooltip.style.left = `${event.clientX}px`;
+            rect.setAttribute("fill", "gray");
+          });
+
+          // Mouseout event listener to hide tooltip
+          rect.addEventListener("mouseout", () => {
+            const tooltip = document.getElementById("tooltip");
+            tooltip.style.display = "none";
+            rect.setAttribute("fill", "rgb(211, 211, 211)");
+          });
+
+          svg.appendChild(rect);
+        });
+
+        // Tooltip element
+        const tooltip = document.createElement("div");
+        tooltip.setAttribute("id", "tooltip");
+        tooltip.style.position = "absolute";
+        tooltip.style.display = "none";
+        tooltip.style.background = "rgba(0, 0, 0, 0.7)";
+        tooltip.style.color = "#fff";
+        tooltip.style.padding = "5px";
+        document.body.appendChild(tooltip);
+
+        // Add axis labels
+        const xAxisLabel = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "text"
+        );
+        xAxisLabel.setAttribute("x", width / 2 - margin / 2 + 15);
+        xAxisLabel.setAttribute("y", height - margin / 2 + 20);
+        xAxisLabel.setAttribute("text-anchor", "center");
+        xAxisLabel.setAttribute("font-size", "22");
+        xAxisLabel.setAttribute("font-family", "Arial");
+        xAxisLabel.setAttribute(
+          "style",
+          "font-weight: bold; font-style: italic;"
+        );
+        xAxisLabel.textContent = "D";
+        svg.appendChild(xAxisLabel);
+
+        const yAxisLabel = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "text"
+        );
+        yAxisLabel.setAttribute("x", margin - 25);
+        yAxisLabel.setAttribute("y", margin + 30);
+        yAxisLabel.setAttribute("text-anchor", "middle");
+        yAxisLabel.setAttribute("font-size", "22");
+        yAxisLabel.setAttribute("font-family", "Arial");
+        yAxisLabel.setAttribute(
+          "style",
+          "font-weight: bold; font-style: italic;"
+        );
+        yAxisLabel.textContent = "f'";
+        svg.appendChild(yAxisLabel);
+      }
+
+      // Modified analyzeByStrips function
       function analyzeByStrips() {
         const radius = parseFloat(document.getElementById("Radius").value) / 8;
         const centerX =
@@ -855,16 +1182,25 @@
 
         const centralStripIndex = Math.floor(numStrips / 2);
         // Display results
+        const histogramData = [];
         stripCounts.forEach((count, index) => {
           const stripArea = stripAreas[index];
-
           const stripAreaFraction = stripArea / stripAreas[centralStripIndex];
-          stripResults.innerHTML += `<div>Полоса ${
+          stripResults.innerHTML += `<br><div><b>Полоса ${
             index + 1
-          }: ${count} входжень, Площа: ${stripArea.toFixed(
+          }:</b> ${count} входжень, Площа: ${stripArea.toFixed(
             2
-          )}, Доля площі: ${stripAreaFraction.toFixed(4)}</div>`;
+          )}, Доля площі: ${stripAreaFraction.toFixed(4)}, Density: ${(
+            count /
+            data.length /
+            stripAreaFraction
+          ).toFixed(4)}</div>`;
+
+          histogramData.push({ count, ringFraction: stripAreaFraction });
         });
+
+        // Draw histogram
+        drawDensityHistogram(histogramData, numStrips);
 
         // Highlight ellipses in the strip with the most entries
         if (maxStripIndex !== -1) {
@@ -905,8 +1241,8 @@
 
         // Draw rotation line if showLine is checked
         if (showLine) {
-          const lineLength = Math.max(2 * radius + 20, 2 * radius + 20);
-          const angleInRadians = (rotationAngle * Math.PI) / 180;
+          const lineLength = radius + 20;
+          const angleInRadians = (rotationAngle * Math.PI) / -180;
 
           const startX = centerX - lineLength * Math.cos(angleInRadians);
           const startY = centerY + lineLength * Math.sin(angleInRadians);
@@ -940,7 +1276,6 @@
           svg.appendChild(startCircle);
         }
       }
-
       function rotatePoint(x, y, centerX, centerY, angle) {
         const radians = (angle * Math.PI) / 180;
         const cos = Math.cos(radians);
@@ -1045,7 +1380,7 @@
         }
 
         const maxResults = document.getElementById("maxResults");
-        maxResults.innerHTML = `Максимальне входження: ${maxEntries} при куті: ${bestAngle} градусів`;
+        maxResults.innerHTML = `<br>Максимальне входження: <b>${maxEntries}</b> при куті: <b>${bestAngle}</b> градусів`;
         document.getElementById("rotationAngle").value = bestAngle;
       }
 
