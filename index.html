@@ -2073,7 +2073,7 @@
           // Отримуємо значення з клітинки таблиці
           const m = parseFloat(cells[3].textContent.replace(",", "."));
           const E = parseFloat(cells[4].textContent.replace(",", "."));
-          const PA = parseFloat(cells[5].textContent.replace(",", "."));
+          const PA = parseFloat(cells[5].textContent.replace(",", ".")); //correct PA
           data.push({ i, x, y, m, E, PA });
         });
 
@@ -3011,7 +3011,7 @@
         ellipse.setAttribute("cy", y);
         ellipse.setAttribute("rx", A);
         ellipse.setAttribute("ry", B);
-        ellipse.setAttribute("transform", `rotate(${angle}, ${x}, ${y})`);
+        ellipse.setAttribute("transform", `rotate(${angle + 90}, ${x}, ${y})`);
         ellipse.setAttribute("stroke", color);
         ellipse.setAttribute("stroke-width", 1);
         ellipse.setAttribute("fill", fillColor);
@@ -3117,7 +3117,10 @@
           ellipse.setAttribute("ry", B);
           ellipse.setAttribute("fill", "rgba(255,0,0,0.8)");
           ellipse.setAttribute("stroke", "black");
-          ellipse.setAttribute("transform", `rotate(${angle}, ${x}, ${y})`);
+          ellipse.setAttribute(
+            "transform",
+            `rotate(${angle + 90}, ${x}, ${y})`
+          );
           ellipse.setAttribute("data-row-index", i);
 
           // Add event listener to display tooltip when mouse hovers over ellipse
@@ -3489,7 +3492,10 @@
           ellipse.setAttribute("ry", B);
           ellipse.setAttribute("fill", "rgba(0,0,0,0.4)");
           ellipse.setAttribute("stroke", "black");
-          ellipse.setAttribute("transform", `rotate(${angle}, ${x}, ${y})`);
+          ellipse.setAttribute(
+            "transform",
+            `rotate(${angle + 90}, ${x}, ${y})`
+          );
           ellipse.setAttribute("data-row-index", i);
 
           // Add event listener to display tooltip when mouse hovers over ellipse
