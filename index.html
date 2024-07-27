@@ -3384,13 +3384,17 @@
                   );
                   const lineLength = 15 + point.m / 2; // Length of the direction line
                   const startX =
-                    point.x - lineLength * Math.cos((point.PA * Math.PI) / 180);
+                    point.x -
+                    lineLength * Math.cos(((point.PA + 90) * Math.PI) / 180);
                   const startY =
-                    point.y - lineLength * Math.sin((point.PA * Math.PI) / 180);
+                    point.y -
+                    lineLength * Math.sin(((point.PA + 90) * Math.PI) / 180);
                   const endX =
-                    point.x + lineLength * Math.cos((point.PA * Math.PI) / 180);
+                    point.x +
+                    lineLength * Math.cos(((point.PA + 90) * Math.PI) / 180);
                   const endY =
-                    point.y + lineLength * Math.sin((point.PA * Math.PI) / 180);
+                    point.y +
+                    lineLength * Math.sin(((point.PA + 90) * Math.PI) / 180);
                   directionLine.setAttribute("x1", startX);
                   directionLine.setAttribute("y1", startY);
                   directionLine.setAttribute("x2", endX);
@@ -3407,16 +3411,20 @@
                   );
                   const startX2 =
                     closestPoint.x -
-                    lineLength * Math.cos((closestPoint.PA * Math.PI) / 180);
+                    lineLength *
+                      Math.cos(((closestPoint.PA + 90) * Math.PI) / 180);
                   const startY2 =
                     closestPoint.y -
-                    lineLength * Math.sin((closestPoint.PA * Math.PI) / 180);
+                    lineLength *
+                      Math.sin(((closestPoint.PA + 90) * Math.PI) / 180);
                   const endX2 =
                     closestPoint.x +
-                    lineLength * Math.cos((closestPoint.PA * Math.PI) / 180);
+                    lineLength *
+                      Math.cos(((closestPoint.PA + 90) * Math.PI) / 180);
                   const endY2 =
                     closestPoint.y +
-                    lineLength * Math.sin((closestPoint.PA * Math.PI) / 180);
+                    lineLength *
+                      Math.sin(((closestPoint.PA + 90) * Math.PI) / 180);
                   directionLine2.setAttribute("x1", startX2);
                   directionLine2.setAttribute("y1", startY2);
                   directionLine2.setAttribute("x2", endX2);
