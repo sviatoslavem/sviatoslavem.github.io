@@ -941,6 +941,7 @@
           let pointCount = 0;
           data.forEach((point, index) => {
             const rotatedPoint = rotatePoint(
+              point.i,
               point.x,
               point.y,
               centerX,
@@ -972,7 +973,7 @@
                   : "lightcoral";
 
               const ellipse = createCircleViewe(
-                index,
+                rotatedPoint.i,
                 rotatedPoint.x,
                 rotatedPoint.y,
                 3,
@@ -1519,6 +1520,7 @@
 
         data.forEach((point, index) => {
           const rotatedPoint = rotatePoint(
+            point.i,
             point.x,
             point.y,
             centerX,
@@ -1537,7 +1539,7 @@
               : "lightcoral";
 
           const ellipse = createCircleViewe(
-            index,
+            rotatedPoint.i,
             rotatedPoint.x,
             rotatedPoint.y,
             3,
@@ -1597,6 +1599,7 @@
         if (maxStripIndex !== -1) {
           data.forEach((point, index) => {
             const rotatedPoint = rotatePoint(
+              point.i,
               point.x,
               point.y,
               centerX,
@@ -1615,7 +1618,7 @@
               );
               if (stripIndex === maxStripIndex) {
                 const ellipse = createCircleViewe(
-                  index,
+                  rotatedPoint.i,
                   rotatedPoint.x,
                   rotatedPoint.y,
                   3,
@@ -1668,7 +1671,7 @@
         }
       }
 
-      function rotatePoint(x, y, centerX, centerY, angle) {
+      function rotatePoint(i, x, y, centerX, centerY, angle) {
         const radians = (angle * Math.PI) / 180;
         const cos = Math.cos(radians);
         const sin = Math.sin(radians);
@@ -1677,7 +1680,7 @@
 
         const nx = cos * dx - sin * dy + centerX;
         const ny = sin * dx + cos * dy + centerY;
-        return { x: nx, y: ny };
+        return { i: i, x: nx, y: ny };
       }
 
       function calculateStripAreas(
@@ -1742,6 +1745,7 @@
 
           data.forEach((point, index) => {
             const rotatedPoint = rotatePoint(
+              point.i,
               point.x,
               point.y,
               centerX,
@@ -2141,7 +2145,7 @@
             const outerRadius = (index + 1) * ringDistance;
             if (dist >= innerRadius && dist < outerRadius) {
               rings[index]++;
-              const ellipse = createCircle(point.x, point.y, 3, "blue");
+              const ellipse = createCircle(point.x, point.y, 3, "blue"); // C-I-O
               ellipse.setAttribute("class", "ring");
               svg.appendChild(ellipse);
             }
@@ -3177,7 +3181,7 @@
 
           svg.appendChild(ellipse);
         }
-
+        /*
         // Add event listener to highlight ellipse when table row is clicked
         Array.from(table.rows).forEach((row, index) => {
           row.addEventListener("click", function () {
@@ -3209,7 +3213,7 @@
             // Highlight the clicked row
             this.classList.add("highlight");
           });
-        });
+        });*/
       }
 
       document.addEventListener("DOMContentLoaded", function () {
