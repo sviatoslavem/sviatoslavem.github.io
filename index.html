@@ -479,11 +479,33 @@
       </content>
       <nav class="show-shared-content">
         <ul class="tabs">
-          <li class="tab-link active" data-tab="tab-1">C-I-O</li>
-          <li class="tab-link" data-tab="tab-2">Line</li>
-          <li class="tab-link" data-tab="tab-3">LHB</li>
-          <li class="tab-link" data-tab="tab-4">E</li>
-          <li class="tab-link" data-tab="tab-5">Analysis of directionality</li>
+          <li
+            class="tab-link active"
+            data-tab="tab-1"
+            onclick="analyzeConcentration()"
+          >
+            C-I-O
+          </li>
+          <li class="tab-link" data-tab="tab-2" onclick="analyzeByStrips()">
+            Line
+          </li>
+          <li class="tab-link" data-tab="tab-3" onclick="analyzeCentralStrip()">
+            LHB
+          </li>
+          <li
+            class="tab-link"
+            data-tab="tab-4"
+            onclick="drawHistogramEllipticities(getDataFromTable(), 10)"
+          >
+            E
+          </li>
+          <li
+            class="tab-link"
+            data-tab="tab-5"
+            onclick="findNearbyGalaxiesWithSimilarOrientation(getDataFromTable())"
+          >
+            Analysis of directionality
+          </li>
         </ul>
         <div class="shared-content">
           <div class="text-field">
