@@ -618,6 +618,7 @@
               id="numStrips"
               class="text-field__input"
               value="5"
+              step="2"
             />
           </div>
           <div class="text-field">
@@ -651,7 +652,27 @@
           <div id="stripResults"></div>
         </div>
 
-        <div id="tab-3" class="tab-content">Вміст вкладки 3</div>
+        <div id="tab-3" class="tab-content">
+          <br />
+          <label for="stripWidth">Strip Width:</label>
+          <input
+            type="number"
+            id="stripWidth"
+            value="200"
+            class="text-field__input"
+          />
+          <br />
+
+          <div class="text-field">
+            <label for="excludeStripCenter" class="text-field__label"
+              >Виключити центр:</label
+            >
+            <input type="checkbox" id="excludeStripCenter" />
+          </div>
+
+          <button onclick="analyzeCentralStrip()">analyzeCentralStrip</button>
+          <div id="centralStripResults"></div>
+        </div>
 
         <div id="tab-4" class="tab-content">
           <b>E</b>
@@ -847,7 +868,172 @@
         drawEllipses();
       }
 
-      function drawDensityHistogram(data, numBins) {
+      function analyzeCentralStrip() {
+        const radius = parseFloat(document.getElementById("Radius").value) / 8;
+        const centerX =
+          parseFloat(document.getElementById("centerX").value) / 8 + 250 + 65;
+        const centerY =
+          parseFloat(document.getElementById("centerY").value) / -8 + 250 + 10;
+        const stripWidth =
+          parseFloat(document.getElementById("stripWidth").value) / 8;
+        const excludeCenter =
+          document.getElementById("excludeStripCenter").checked;
+        //const showLine = document.getElementById("showStripLine").checked;
+
+        const svg = document.getElementById("mySVG");
+        svg.innerHTML = "";
+        drawLinesAndText();
+
+        const stripResults = document.getElementById("centralStripResults");
+        stripResults.innerHTML = "";
+
+        // Draw main circle
+        const circle = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "circle"
+        );
+        circle.setAttribute("cx", centerX);
+        circle.setAttribute("cy", centerY);
+        circle.setAttribute("r", radius);
+        circle.setAttribute("stroke", "rgba(0,0,0, 0.1)");
+        circle.setAttribute("stroke-width", "1");
+        circle.setAttribute("fill", "none");
+        svg.appendChild(circle);
+
+        // Draw central strip
+        const centralStripY = centerY - radius;
+        const rect = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "rect"
+        );
+        rect.setAttribute("x", centerX - stripWidth / 2);
+        rect.setAttribute("y", centralStripY);
+        rect.setAttribute("width", stripWidth);
+        rect.setAttribute("height", 2 * radius);
+        rect.setAttribute("stroke", "rgba(0,0,0, 0.1)");
+        rect.setAttribute("fill", `none`);
+        svg.appendChild(rect);
+
+        // Draw inner dashed circle if excludeCenter is checked
+        if (excludeCenter) {
+          const innerCircle = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle"
+          );
+          innerCircle.setAttribute("cx", centerX);
+          innerCircle.setAttribute("cy", centerY);
+          innerCircle.setAttribute("r", stripWidth / 2);
+          innerCircle.setAttribute("stroke", "rgba(0,0,0, 0.1)");
+          innerCircle.setAttribute("stroke-width", "1");
+          innerCircle.setAttribute("fill", "none");
+          innerCircle.setAttribute("stroke-dasharray", "2, 2");
+          svg.appendChild(innerCircle);
+        }
+
+        // Analyze data points
+        const data = getDataFromTable(); // Assuming you have a function to get data points
+        const totalGalaxies = data.length;
+        const angleCounts = Array(380).fill(0);
+
+        for (let angle = 0; angle < 380; angle++) {
+          let pointCount = 0;
+          data.forEach((point, index) => {
+            const rotatedPoint = rotatePoint(
+              point.x,
+              point.y,
+              centerX,
+              centerY,
+              angle
+            );
+            const distToCenter = Math.sqrt(
+              (rotatedPoint.x - centerX) ** 2 + (rotatedPoint.y - centerY) ** 2
+            );
+            const isInsideCenter =
+              excludeCenter && distToCenter < stripWidth / 2;
+            const isInCentralStrip =
+              rotatedPoint.y < centerY &&
+              Math.abs(rotatedPoint.x - centerX) <= stripWidth / 2;
+            const isInOuterCircle = distToCenter <= radius;
+
+            if (isInCentralStrip && isInOuterCircle && !isInsideCenter) {
+              pointCount++;
+            }
+
+            if (angle === 0) {
+              const color =
+                isInCentralStrip && isInOuterCircle && !isInsideCenter
+                  ? "blue"
+                  : "red";
+              const fillColor =
+                isInCentralStrip && isInOuterCircle && !isInsideCenter
+                  ? "lightblue"
+                  : "lightcoral";
+
+              const ellipse = createCircleViewe(
+                index,
+                rotatedPoint.x,
+                rotatedPoint.y,
+                3,
+                0,
+                point.PA,
+                color,
+                fillColor
+              );
+              svg.appendChild(ellipse);
+            }
+          });
+          angleCounts[angle] = pointCount;
+
+          // Display results
+          stripResults.innerHTML += `<br><div><b>α:</b> ${angle}. <b>Count:</b> ${
+            pointCount //.reduce(
+            //   (a, b) => a + b,
+            //   0
+          }. f': ${(pointCount / totalGalaxies).toFixed(4)}</div>`;
+        }
+        /*
+        // Draw rotation line if showLine is checked
+        if (showLine) {
+          const lineLength = radius + 20;
+          const angleInRadians = (0 * Math.PI) / -180;
+
+          const startX = centerX - lineLength * Math.cos(angleInRadians);
+          const startY = centerY + lineLength * Math.sin(angleInRadians);
+          const endX = centerX + lineLength * Math.cos(angleInRadians);
+          const endY = centerY - lineLength * Math.sin(angleInRadians);
+
+          const line = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          line.setAttribute("x1", startX);
+          line.setAttribute("y1", startY);
+          line.setAttribute("x2", endX);
+          line.setAttribute("y2", endY);
+          line.setAttribute("stroke", "black");
+          line.setAttribute("stroke-width", "1");
+          line.setAttribute("stroke-dasharray", "5, 5");
+          svg.appendChild(line);
+
+          // Draw start circle for the line
+          const startCircle = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle"
+          );
+          startCircle.setAttribute("cx", centerX);
+          startCircle.setAttribute("cy", centerY);
+          startCircle.setAttribute("r", 2);
+          startCircle.setAttribute("stroke", "black");
+          startCircle.setAttribute("stroke-width", "1");
+          startCircle.setAttribute("fill", "black");
+          svg.appendChild(startCircle);
+        }*/
+
+        // Draw histogram
+        drawAngleHistogram(angleCounts, 380);
+      }
+
+      function drawAngleHistogram(angleCounts, numBins) {
         const svg = document.getElementById("histogramSVG");
         svg.innerHTML = "";
 
@@ -855,18 +1041,15 @@
         const height = 545;
         const margin = 55;
 
-        // Extract counts and ringFractions
-        const counts = data.map((d) => d.count);
-        const ringFractions = data.map((d) => d.ringFraction);
-
         // Calculate densities
-        const totalGalaxies = counts.reduce((sum, count) => sum + count, 0);
-        const densities = counts.map(
-          (count, index) => count / totalGalaxies / ringFractions[index]
-        );
+        const totalPoints = angleCounts.reduce((sum, count) => sum + count, 0);
+        const data = getDataFromTable(); // Assuming you have a function to get data points
+        const totalGalaxies = data.length;
+        console.log(totalPoints, totalGalaxies);
+        const densities = angleCounts.map((count) => count / totalGalaxies);
 
         // Normalize bin values
-        const maxDensity = 0.5; //Math.max(...densities);
+        const maxDensity = Math.max(...densities);
         const barWidth = (width - margin * 2) / numBins;
 
         // Create X and Y axes
@@ -894,8 +1077,9 @@
         yAxis.setAttribute("stroke", "black");
         svg.appendChild(yAxis);
 
+        const numBinsLabel = 8;
         // Create X axis labels and ticks
-        for (let i = 0; i <= numBins; i++) {
+        for (let i = 0; i <= numBins; i += 45) {
           const x = margin + i * barWidth;
 
           // Labels
@@ -908,7 +1092,211 @@
           text.setAttribute("text-anchor", "middle");
           text.setAttribute("font-size", "18");
           text.setAttribute("font-family", "Arial");
-          text.textContent = ((i * 2) / numBins - 1).toFixed(2);
+          text.textContent = i.toFixed(1); //* 2) / numBinsLabel - 1).toFixed(2);
+          svg.appendChild(text);
+
+          // Ticks
+          const tick = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          tick.setAttribute("x1", x);
+          tick.setAttribute("y1", height - margin);
+          tick.setAttribute("x2", x);
+          tick.setAttribute("y2", height - margin + 5);
+          tick.setAttribute("stroke", "black");
+          svg.appendChild(tick);
+        }
+
+        // Create Y axis labels, ticks, and grid lines
+        const yAxisSteps = 5;
+        for (let i = 0; i <= yAxisSteps; i++) {
+          const y = height - margin - ((height - margin * 2) / yAxisSteps) * i;
+          const densityValue = ((maxDensity * i) / yAxisSteps).toFixed(2);
+
+          // Labels
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          text.setAttribute("x", margin - 10);
+          text.setAttribute("y", y + 3);
+          text.setAttribute("text-anchor", "end");
+          text.setAttribute("font-size", "18");
+          text.setAttribute("font-family", "Arial");
+          text.textContent = i === yAxisSteps ? "" : densityValue; // Hide the text for the last value
+          svg.appendChild(text);
+
+          // Ticks
+          const tick = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          tick.setAttribute("x1", margin - 5);
+          tick.setAttribute("y1", y);
+          tick.setAttribute("x2", margin);
+          tick.setAttribute("y2", y);
+          tick.setAttribute("stroke", "black");
+          svg.appendChild(tick);
+
+          // Grid lines
+          const gridLine = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          gridLine.setAttribute("x1", margin);
+          gridLine.setAttribute("y1", y);
+          gridLine.setAttribute("x2", width - margin);
+          gridLine.setAttribute("y2", y);
+          gridLine.setAttribute("stroke", "lightgray");
+          gridLine.setAttribute("stroke-dasharray", "2,2");
+          svg.appendChild(gridLine);
+        }
+
+        // Create bars with borders
+        densities.forEach((density, index) => {
+          const barHeight = (density / maxDensity) * (height - margin * 2);
+          const rect = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "rect"
+          );
+          rect.setAttribute("x", margin + index * barWidth);
+          rect.setAttribute("y", height - margin - barHeight);
+          rect.setAttribute("width", barWidth);
+          rect.setAttribute("height", barHeight);
+          rect.setAttribute("fill", "gray");
+          rect.setAttribute("stroke", "black");
+          rect.setAttribute("stroke-width", "0.3");
+
+          // Tooltip (title attribute)
+          rect.setAttribute("title", `α: ${index}. f': ${density.toFixed(4)}`);
+
+          // Mouseover event listener for tooltip
+          rect.addEventListener("mouseover", (event) => {
+            const tooltip = document.getElementById("tooltip");
+            tooltip.textContent = `α: ${index}. f': ${density.toFixed(4)}`;
+            tooltip.style.display = "block";
+            tooltip.style.top = `${event.clientY}px`;
+            tooltip.style.left = `${event.clientX}px`;
+            rect.setAttribute("fill", "rgb(211, 211, 211)");
+          });
+
+          // Mouseout event listener to hide tooltip
+          rect.addEventListener("mouseout", () => {
+            const tooltip = document.getElementById("tooltip");
+            tooltip.style.display = "none";
+            rect.setAttribute("fill", "gray");
+          });
+
+          svg.appendChild(rect);
+        });
+
+        // Tooltip element
+        const tooltip = document.createElement("div");
+        tooltip.setAttribute("id", "tooltip");
+        tooltip.style.position = "absolute";
+        tooltip.style.display = "none";
+        tooltip.style.background = "rgba(0, 0, 0, 0.7)";
+        tooltip.style.color = "#fff";
+        tooltip.style.padding = "5px";
+        document.body.appendChild(tooltip);
+
+        // Add axis labels
+        const xAxisLabel = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "text"
+        );
+        xAxisLabel.setAttribute("x", width / 2 - margin / 2 + 15);
+        xAxisLabel.setAttribute("y", height - margin / 2 + 20);
+        xAxisLabel.setAttribute("text-anchor", "center");
+        xAxisLabel.setAttribute("font-size", "22");
+        xAxisLabel.setAttribute("font-family", "Arial");
+        xAxisLabel.setAttribute(
+          "style",
+          "font-weight: bold; font-style: italic;"
+        );
+        xAxisLabel.textContent = "α";
+        svg.appendChild(xAxisLabel);
+
+        const yAxisLabel = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "text"
+        );
+        yAxisLabel.setAttribute("x", margin - 25);
+        yAxisLabel.setAttribute("y", margin + 30);
+        yAxisLabel.setAttribute("text-anchor", "middle");
+        yAxisLabel.setAttribute("font-size", "22");
+        yAxisLabel.setAttribute("font-family", "Arial");
+        yAxisLabel.setAttribute(
+          "style",
+          "font-weight: bold; font-style: italic;"
+        );
+        yAxisLabel.textContent = "f'";
+        svg.appendChild(yAxisLabel);
+      }
+
+      function drawDensityHistogram(data, numBins) {
+        const svg = document.getElementById("histogramSVG");
+        svg.innerHTML = "";
+
+        const width = 575;
+        const height = 545;
+        const margin = 55;
+
+        // Extract counts and ringFractions
+        const counts = data.map((d) => d.count);
+        const ringFractions = data.map((d) => d.ringFraction);
+
+        // Calculate densities
+        const totalGalaxies = counts.reduce((sum, count) => sum + count, 0);
+        const densities = counts.map(
+          (count, index) => count / totalGalaxies / ringFractions[index]
+        );
+
+        // Normalize bin values
+        const maxDensity = 0.5; //Math.max(...densities);
+        const barWidth = (width - margin * 2) / numBins;
+        const barWidthLabel = (width - margin * 2) / 20;
+        // Create X and Y axes
+        const xAxis = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "line"
+        );
+        xAxis.setAttribute("x1", margin);
+        xAxis.setAttribute("y1", height - margin);
+        xAxis.setAttribute("x2", width - margin);
+        xAxis.setAttribute("y2", height - margin);
+        xAxis.setAttribute("stroke-width", "2");
+        xAxis.setAttribute("stroke", "black");
+        svg.appendChild(xAxis);
+
+        const yAxis = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "line"
+        );
+        yAxis.setAttribute("x1", margin);
+        yAxis.setAttribute("y1", margin);
+        yAxis.setAttribute("x2", margin);
+        yAxis.setAttribute("y2", height - margin);
+        yAxis.setAttribute("stroke-width", "2");
+        yAxis.setAttribute("stroke", "black");
+        svg.appendChild(yAxis);
+
+        // Create X axis labels and ticks
+        for (let i = 0; i <= 20; i++) {
+          const x = margin + i * barWidthLabel;
+
+          // Labels
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          text.setAttribute("x", x);
+          text.setAttribute("y", height - margin + 25);
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("font-size", "18");
+          text.setAttribute("font-family", "Arial");
+          if (i % 2 == 0) text.textContent = ((i * 2) / 20 - 1).toFixed(1);
           svg.appendChild(text);
 
           // Ticks
@@ -1276,6 +1664,7 @@
           svg.appendChild(startCircle);
         }
       }
+
       function rotatePoint(x, y, centerX, centerY, angle) {
         const radians = (angle * Math.PI) / 180;
         const cos = Math.cos(radians);
