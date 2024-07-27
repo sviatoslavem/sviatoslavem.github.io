@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cluster Cartographi</title>
+    <title>Cluster Cartography</title>
     <style>
       :root {
         --primary-color: #3f4b59;
@@ -653,13 +653,13 @@
         </div>
 
         <div id="tab-3" class="tab-content">
-          <br />
-          <label for="stripWidth">Strip Width:</label>
+          <label for="numCentralStrips">Strip bean:</label>
           <input
             type="number"
-            id="stripWidth"
-            value="200"
+            id="numCentralStrips"
+            value="5"
             class="text-field__input"
+            step="2"
           />
           <br />
 
@@ -874,11 +874,13 @@
           parseFloat(document.getElementById("centerX").value) / 8 + 250 + 65;
         const centerY =
           parseFloat(document.getElementById("centerY").value) / -8 + 250 + 10;
-        const stripWidth =
-          parseFloat(document.getElementById("stripWidth").value) / 8;
+        const numCentralStrips = parseFloat(
+          document.getElementById("numCentralStrips").value
+        );
         const excludeCenter =
           document.getElementById("excludeStripCenter").checked;
         //const showLine = document.getElementById("showStripLine").checked;
+        const stripWidth = (2 * radius) / numCentralStrips;
 
         const svg = document.getElementById("mySVG");
         svg.innerHTML = "";
@@ -989,7 +991,7 @@
             pointCount //.reduce(
             //   (a, b) => a + b,
             //   0
-          }. f': ${(pointCount / totalGalaxies).toFixed(4)}</div>`;
+          }. <b>f':</b> ${(pointCount / totalGalaxies).toFixed(4)}</div>`;
         }
         /*
         // Draw rotation line if showLine is checked
@@ -1049,7 +1051,7 @@
         const densities = angleCounts.map((count) => count / totalGalaxies);
 
         // Normalize bin values
-        const maxDensity = Math.max(...densities);
+        const maxDensity = 0.5; //Math.max(...densities);
         const barWidth = (width - margin * 2) / numBins;
 
         // Create X and Y axes
@@ -1109,7 +1111,7 @@
         }
 
         // Create Y axis labels, ticks, and grid lines
-        const yAxisSteps = 5;
+        const yAxisSteps = 10;
         for (let i = 0; i <= yAxisSteps; i++) {
           const y = height - margin - ((height - margin * 2) / yAxisSteps) * i;
           const densityValue = ((maxDensity * i) / yAxisSteps).toFixed(2);
@@ -1124,7 +1126,8 @@
           text.setAttribute("text-anchor", "end");
           text.setAttribute("font-size", "18");
           text.setAttribute("font-family", "Arial");
-          text.textContent = i === yAxisSteps ? "" : densityValue; // Hide the text for the last value
+          if (i % 2 == 0)
+            text.textContent = i === yAxisSteps ? "" : densityValue; // Hide the text for the last value
           svg.appendChild(text);
 
           // Ticks
