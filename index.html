@@ -933,7 +933,7 @@
         rect.setAttribute("x", centerX - stripWidth / 2);
         rect.setAttribute("y", centralStripY);
         rect.setAttribute("width", stripWidth);
-        rect.setAttribute("height", 2 * radius);
+        rect.setAttribute("height", radius);
         rect.setAttribute("stroke", "rgba(0,0,0, 0.1)");
         rect.setAttribute("fill", `none`);
         svg.appendChild(rect);
@@ -1010,11 +1010,8 @@
           angleCounts[angle] = pointCount;
 
           // Display results
-          stripResults.innerHTML += `<br><div><b>α:</b> ${angle}. <b>Count:</b> ${
-            pointCount //.reduce(
-            //   (a, b) => a + b,
-            //   0
-          }. <b>f':</b> ${(pointCount / totalGalaxies).toFixed(4)}</div>`;
+          stripResults.innerHTML += `<br><div><b>α:</b>&emsp;&emsp;${angle}&emsp;&emsp;<b>Count:</b>&emsp;&emsp;${pointCount}&emsp;&emsp;<b>f':</b>&emsp;&emsp;${(pointCount / totalGalaxies).toFixed(4)}</div>`;
+
         }
         /*
         // Draw rotation line if showLine is checked
@@ -1067,10 +1064,10 @@
         const margin = 55;
 
         // Calculate densities
-        const totalPoints = angleCounts.reduce((sum, count) => sum + count, 0);
+        //const totalPoints = angleCounts.reduce((sum, count) => sum + count, 0);
         const data = getDataFromTable(); // Assuming you have a function to get data points
         const totalGalaxies = data.length;
-        console.log(totalPoints, totalGalaxies);
+        //console.log(totalPoints, totalGalaxies);
         const densities = angleCounts.map((count) => count / totalGalaxies);
 
         // Normalize bin values
@@ -1658,8 +1655,10 @@
         // Draw rotation line if showLine is checked
         if (showLine) {
           const lineLength = radius + 20;
-          const angleInRadians = (rotationAngle * Math.PI) / -180;
-
+          const adjustedAngle = rotationAngle - 90; // Коригування кута для того, щоб 0 градусів був зверху
+const angleInRadians = (adjustedAngle * Math.PI) / -180;
+          //const angleInRadians = ((rotationAngle * Math.PI) / -180);
+//console.log(angleInRadians);
           const startX = centerX - lineLength * Math.cos(angleInRadians);
           const startY = centerY + lineLength * Math.sin(angleInRadians);
           const endX = centerX + lineLength * Math.cos(angleInRadians);
@@ -1694,7 +1693,9 @@
       }
 
       function rotatePoint(i, x, y, centerX, centerY, angle) {
-        const radians = (angle * Math.PI) / 180;
+        const adjustedAngle = angle; // Коригування кута для того, щоб 0 градусів був зверху
+        //const angleInRadians = (adjustedAngle * Math.PI) / -180;
+        const radians = (adjustedAngle * Math.PI) / 180;
         const cos = Math.cos(radians);
         const sin = Math.sin(radians);
         const dx = x - centerX;
