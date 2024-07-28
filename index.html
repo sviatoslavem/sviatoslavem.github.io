@@ -240,11 +240,19 @@
         display: block;
       }
 
-      #tab-1 button {
-        height: 30px;
-        margin: 1px 0;
-      }
 
+
+      .tab-content button {
+    height: calc(2.25rem + 2px);
+    margin: 0.25rem 0;
+    padding: 0.375rem 0.75rem;
+    width: 100%;
+    font-size: 1rem;
+    cursor: pointer;
+}
+.buttonFindHighestDensity{
+  width: 60% !important;
+}
       .ring {
         fill: none;
         stroke: blue;
@@ -350,7 +358,9 @@
         background-color: #f5f5f5;
         opacity: 1;
       }
-
+      .tab-content .text-field {
+    margin-top: 25px;
+}
       @media (max-width: 800px) {
         header {
           flex-wrap: wrap;
@@ -617,7 +627,7 @@
             Аналізувати концентрацію
           </button>
           <div id="progressContainer">
-            <button
+            <button class="buttonFindHighestDensity"
               onclick='findHighestDensityCenter(
                     250 + 65,
                     250 + 10,
@@ -701,16 +711,16 @@
         </div>
 
         <div id="tab-4" class="tab-content">
-          <b>E</b>
-          <br />
+          <div class="text-field"></div>
+    
           <button onclick="drawHistogramEllipticities(getDataFromTable(), 10)">
             Аналізувати E
           </button>
         </div>
 
         <div id="tab-5" class="tab-content">
-          <b>Analysis of directionality</b>
-          <br />
+
+
           <div class="text-field">
             <label for="AngelDifference" class="text-field__label"
               >AngleDifference:</label
