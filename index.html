@@ -1882,111 +1882,10 @@ const angleInRadians = (adjustedAngle * Math.PI) / -180;
         }
       }
 
-      // Function to save SVG as BMP
-      function saveBMP() {
-        var svgElement = document.getElementById("mySVG");
-        var svgString = new XMLSerializer().serializeToString(svgElement);
-
-        // Create a canvas element and set its dimensions to match the SVG
-        var canvas = document.createElement("canvas");
-        canvas.width = svgElement.clientWidth;
-        canvas.height = svgElement.clientHeight;
-        var ctx = canvas.getContext("2d");
-
-        var DOMURL = window.URL || window.webkitURL || window;
-        var img = new Image();
-        var svgBlob = new Blob([svgString], {
-          type: "image/svg+xml;charset=utf-8",
-        });
-        var url = DOMURL.createObjectURL(svgBlob);
-
-        img.onload = function () {
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          DOMURL.revokeObjectURL(url);
-
-          var imgURI = canvas
-            .toDataURL("image/bmp")
-            .replace("image/bmp", "image/octet-stream");
-
-          var evt = new MouseEvent("click", {
-            view: window,
-            bubbles: false,
-            cancelable: true,
-          });
-          const fileInput = document.getElementById("fileInput");
-          // Отримати вибраний файл
-          const file = fileInput.files[0];
-
-          // Отримати ім'я файлу без розширення
-          const fileName = file.name.replace(/\.[^/.]+$/, ""); // Видаляємо останнє збігання крапки і тексту за нею до кінця рядка
-
-          //console.log("Назва файлу без розширення:", fileName);
-
-          var a = document.createElement("a");
-          a.setAttribute("download", fileName + ".bmp");
-          a.setAttribute("href", imgURI);
-          a.setAttribute("target", "_blank");
-
-          a.dispatchEvent(evt);
-        };
-
-        img.src = url;
-      }
-
-      // Function to save SVG as BMP
-      function histogramSVGsaveBMP() {
-        var svgElement = document.getElementById("histogramSVG");
-        var svgString = new XMLSerializer().serializeToString(svgElement);
-
-        // Create a canvas element and set its dimensions to match the SVG
-        var canvas = document.createElement("canvas");
-        canvas.width = svgElement.clientWidth;
-        canvas.height = svgElement.clientHeight;
-        var ctx = canvas.getContext("2d");
-
-        var DOMURL = window.URL || window.webkitURL || window;
-        var img = new Image();
-        var svgBlob = new Blob([svgString], {
-          type: "image/svg+xml;charset=utf-8",
-        });
-        var url = DOMURL.createObjectURL(svgBlob);
-
-        img.onload = function () {
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          DOMURL.revokeObjectURL(url);
-
-          var imgURI = canvas
-            .toDataURL("image/bmp")
-            .replace("image/bmp", "image/octet-stream");
-
-          var evt = new MouseEvent("click", {
-            view: window,
-            bubbles: false,
-            cancelable: true,
-          });
-          const fileInput = document.getElementById("fileInput");
-          // Отримати вибраний файл
-          const file = fileInput.files[0];
-
-          // Отримати ім'я файлу без розширення
-          const fileName = file.name.replace(/\.[^/.]+$/, ""); // Видаляємо останнє збігання крапки і тексту за нею до кінця рядка
-
-          //console.log("Назва файлу без розширення:", fileName);
-
-          var a = document.createElement("a");
-          a.setAttribute("download", "D.H. - " + fileName + ".bmp");
-          a.setAttribute("href", imgURI);
-          a.setAttribute("target", "_blank");
-
-          a.dispatchEvent(evt);
-        };
-
-        img.src = url;
-      }
-
+ 
       function drawLinesAndText() {
         const svg = document.getElementById("mySVG");
-
+        
         // Helper function to create an SVG line element with x1 and x2 adjusted by subtracting 420
         function createLine(x1, y1, x2, y2, stroke = "black", strokeWidth = 1) {
           const line = document.createElementNS(
@@ -3537,6 +3436,129 @@ const angleInRadians = (adjustedAngle * Math.PI) / -180;
 
         drawHistogramPA(getDataFromTable(), 10);
       }
+
+
+     // Function to save SVG as BMP
+      function saveBMP() {
+        var svgElement = document.getElementById("mySVG");
+        
+        const fileInput = document.getElementById("fileInput");
+          // Отримати вибраний файл
+          const file = fileInput.files[0];
+
+          // Отримати ім'я файлу без розширення
+          const fileName = file.name.replace(/\.[^/.]+$/, ""); // Видаляємо останнє збігання крапки і тексту за нею до кінця рядка
+
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          text.setAttribute("x", 440); // Adjust x coordinate by subtracting 420
+          text.setAttribute("y", 60);
+          text.setAttribute("font-size", 18);
+          text.setAttribute("font-family", "Arial");
+          text.setAttribute("text-anchor", "start"); // Set text alignment
+          text.textContent = fileName;
+
+        svgElement.appendChild(text);
+        var svgString = new XMLSerializer().serializeToString(svgElement);
+
+        // Create a canvas element and set its dimensions to match the SVG
+        var canvas = document.createElement("canvas");
+        canvas.width = svgElement.clientWidth;
+        canvas.height = svgElement.clientHeight;
+        var ctx = canvas.getContext("2d");
+
+        var DOMURL = window.URL || window.webkitURL || window;
+        var img = new Image();
+        var svgBlob = new Blob([svgString], {
+          type: "image/svg+xml;charset=utf-8",
+        });
+        var url = DOMURL.createObjectURL(svgBlob);
+
+        img.onload = function () {
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          DOMURL.revokeObjectURL(url);
+
+          var imgURI = canvas
+            .toDataURL("image/bmp")
+            .replace("image/bmp", "image/octet-stream");
+
+          var evt = new MouseEvent("click", {
+            view: window,
+            bubbles: false,
+            cancelable: true,
+          });
+
+
+
+
+          var a = document.createElement("a");
+          a.setAttribute("download", fileName + ".bmp");
+          a.setAttribute("href", imgURI);
+          a.setAttribute("target", "_blank");
+
+          a.dispatchEvent(evt);
+        };
+
+        img.src = url;
+      }
+
+      // Function to save SVG as BMP
+      function histogramSVGsaveBMP() {
+        var svgElement = document.getElementById("histogramSVG");
+        var svgString = new XMLSerializer().serializeToString(svgElement);
+
+        // Create a canvas element and set its dimensions to match the SVG
+        var canvas = document.createElement("canvas");
+        canvas.width = svgElement.clientWidth;
+        canvas.height = svgElement.clientHeight;
+        var ctx = canvas.getContext("2d");
+
+        var DOMURL = window.URL || window.webkitURL || window;
+        var img = new Image();
+        var svgBlob = new Blob([svgString], {
+          type: "image/svg+xml;charset=utf-8",
+        });
+        var url = DOMURL.createObjectURL(svgBlob);
+
+        img.onload = function () {
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          DOMURL.revokeObjectURL(url);
+
+          var imgURI = canvas
+            .toDataURL("image/bmp")
+            .replace("image/bmp", "image/octet-stream");
+
+          var evt = new MouseEvent("click", {
+            view: window,
+            bubbles: false,
+            cancelable: true,
+          });
+          const fileInput = document.getElementById("fileInput");
+          // Отримати вибраний файл
+          const file = fileInput.files[0];
+
+          // Отримати ім'я файлу без розширення
+          const fileName = file.name.replace(/\.[^/.]+$/, ""); // Видаляємо останнє збігання крапки і тексту за нею до кінця рядка
+
+          //console.log("Назва файлу без розширення:", fileName);
+
+          var a = document.createElement("a");
+          a.setAttribute("download", "D.H. - " + fileName + ".bmp");
+          a.setAttribute("href", imgURI);
+          a.setAttribute("target", "_blank");
+
+          a.dispatchEvent(evt);
+        };
+
+        img.src = url;
+      }
+
+
+
+
+
 
       function drawEllipses() {
         var svg = document.getElementById("mySVG");
