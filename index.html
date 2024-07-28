@@ -167,6 +167,7 @@
         display: none;
         pointer-events: none;
         z-index: 10;
+        margin: 15px;
       }
 
       .highlight-ellipse {
@@ -175,6 +176,9 @@
       }
 
       ellipse:hover {
+
+        stroke-width: 2;
+        stroke: red;
         cursor: pointer;
       }
 
@@ -516,7 +520,7 @@
               type="number"
               id="Radius"
               class="text-field__input"
-              value="calculateClusterRadius()"
+              value="1000"
             />
           </div>
           <div class="text-field">
@@ -708,7 +712,7 @@
           <b>Analysis of directionality</b>
           <br />
           <div class="text-field">
-            <label for="AngleDifference" class="text-field__label"
+            <label for="AngelDifference" class="text-field__label"
               >AngleDifference:</label
             >
             <input
@@ -2139,7 +2143,8 @@ const angleInRadians = (adjustedAngle * Math.PI) / -180;
             document.getElementById("ringDistance").value
         );
 
-        drawEllipsesRings();
+       // drawEllipsesRings();
+   
         const numRings = parseInt(document.getElementById("numRings").value);
         const ringDistance =
           parseFloat(document.getElementById("ringDistance").value) / 8;
@@ -2156,6 +2161,8 @@ const angleInRadians = (adjustedAngle * Math.PI) / -180;
 
         const rings = Array(numRings).fill(0);
         const svg = document.getElementById("mySVG");
+        svg.innerHTML = "";
+        drawLinesAndText();
         const previousRings = svg.querySelectorAll(".ring");
         previousRings.forEach((ring) => ring.remove());
 
@@ -2168,12 +2175,59 @@ const angleInRadians = (adjustedAngle * Math.PI) / -180;
             const outerRadius = (index + 1) * ringDistance;
             if (dist >= innerRadius && dist < outerRadius) {
               rings[index]++;
-              const ellipse = createCircle(point.x, point.y, 3, "blue"); // C-I-O
-              ellipse.setAttribute("class", "ring");
+              //const ellipse = createCircle(point.x, point.y, 3, "blue"); // C-I-O
+              const ellipse = createCircleViewe(
+            point.i,
+            point.x,
+            point.y,
+            3,
+            0,
+            point.PA,
+            "blue",
+            "lightblue"
+          );
+
+
+
+             // ellipse.setAttribute("class", "ring");
               svg.appendChild(ellipse);
             }
+            if(dist > outerRadius) {
+              const ellipse = createCircleViewe(
+            point.i,
+            point.x,
+            point.y,
+            3,
+            0,
+            point.PA,
+            "red",
+            "lightcoral"
+          );
+          svg.appendChild(ellipse);
+            }
+            
           });
         });
+/*
+        const isInsideCenter = excludeCenter && distToCenter < stripWidth / 2;
+          const color =
+            distToCenter <= radius && !isInsideCenter ? "blue" : "red";
+          const fillColor =
+            distToCenter <= radius && !isInsideCenter
+              ? "lightblue"
+              : "lightcoral";
+
+          const ellipse = createCircleViewe(
+            rotatedPoint.i,
+            rotatedPoint.x,
+            rotatedPoint.y,
+            3,
+            0,
+            point.PA,
+            color,
+            fillColor
+          );*/
+
 
         const totalArea = Math.PI * (1.0 * ringDistance) ** 2; //numRings
         const resultsDiv = document.getElementById("results");
@@ -3039,7 +3093,7 @@ const angleInRadians = (adjustedAngle * Math.PI) / -180;
         ellipse.setAttribute("rx", A);
         ellipse.setAttribute("ry", B);
         ellipse.setAttribute("transform", `rotate(${angle + 90}, ${x}, ${y})`);
-        ellipse.setAttribute("stroke", color);
+        ellipse.setAttribute("stroke", color); // color
         ellipse.setAttribute("stroke-width", 1);
         ellipse.setAttribute("fill", fillColor);
         ellipse.setAttribute("data-row-index", i);
@@ -3049,8 +3103,8 @@ const angleInRadians = (adjustedAngle * Math.PI) / -180;
           "mouseover",
           (function (x, y, radius, ellipticity, angle) {
             return function (event) {
-              this.setAttribute("stroke", "red");
-              this.setAttribute("stroke-width", "2");
+             // this.setAttribute("stroke", "red");
+            //  this.setAttribute("stroke-width", "2");
               var tooltip = document.getElementById("tooltip");
               tooltip.style.display = "block";
               tooltip.style.left = event.pageX + "px";
@@ -3066,8 +3120,8 @@ const angleInRadians = (adjustedAngle * Math.PI) / -180;
 
         // Remove tooltip and highlighting when mouse leaves ellipse
         ellipse.addEventListener("mouseout", function () {
-          this.setAttribute("stroke", "black");
-          this.setAttribute("stroke-width", "1");
+          //this.setAttribute("stroke", "black");
+          //this.setAttribute("stroke-width", "1");
           var tooltip = document.getElementById("tooltip");
           tooltip.style.display = "none";
         });
