@@ -2455,7 +2455,6 @@ const angleInRadians = (adjustedAngle * Math.PI) / -180;
 
             // Масштабування значень бінів
             const totalGalaxies = data.length;
-            const maxBinValue = Math.max(...bins);
             const barWidth = (width - margin * 2) / numBins;
 
             // Створення осей X і Y
@@ -2488,8 +2487,8 @@ const angleInRadians = (adjustedAngle * Math.PI) / -180;
                 text.setAttribute("text-anchor", "middle");
                 text.setAttribute("font-size", "18");
                 text.setAttribute("font-family", "Arial");
-                if(i%2==0)
-                text.textContent = (i * binWidth).toFixed(0);
+                if (i % 2 == 0)
+                    text.textContent = (i * binWidth).toFixed(0);
                 svg.appendChild(text);
 
                 // Тіки
@@ -2504,9 +2503,9 @@ const angleInRadians = (adjustedAngle * Math.PI) / -180;
 
             // Створення підписів осі Y, тік та сітки
             const yAxisSteps = 5;
-            for (let i = 0; i <= yAxisSteps; i++) {
+            for (let i = 0; i < yAxisSteps; i++) {
                 const y = height - margin - ((height - margin * 2) / yAxisSteps) * i;
-                const countValue = ((maxBinValue * i) / yAxisSteps).toFixed(0);
+                const relativeFrequency = (i / yAxisSteps).toFixed(2);
 
                 // Підписи
                 const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -2515,7 +2514,7 @@ const angleInRadians = (adjustedAngle * Math.PI) / -180;
                 text.setAttribute("text-anchor", "end");
                 text.setAttribute("font-size", "18");
                 text.setAttribute("font-family", "Arial");
-                text.textContent = i === yAxisSteps ? "" : countValue; // Приховати текст останнього значення
+                text.textContent = relativeFrequency; 
                 svg.appendChild(text);
 
                 // Тіки
@@ -2540,7 +2539,7 @@ const angleInRadians = (adjustedAngle * Math.PI) / -180;
 
             // Створення стовпчиків з бордюрами
             bins.forEach((binValue, index) => {
-                const barHeight = (binValue / maxBinValue) * (height - margin * 2);
+                const barHeight = (binValue / totalGalaxies) * (height - margin * 2); // Зміна масштабування
                 const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
                 rect.setAttribute("x", margin + index * barWidth);
                 rect.setAttribute("y", height - margin - barHeight);
@@ -2551,12 +2550,12 @@ const angleInRadians = (adjustedAngle * Math.PI) / -180;
                 rect.setAttribute("stroke-width", "1");
 
                 // Tooltip (title attribute)
-                rect.setAttribute("title", `Кількість: ${binValue}`);
+                rect.setAttribute("title", `f': ${(binValue / totalGalaxies).toFixed(3)}`);
 
                 // Mouseover event listener for tooltip
                 rect.addEventListener("mouseover", (event) => {
                     const tooltip = document.getElementById("tooltip");
-                    tooltip.textContent = `Кількість: ${binValue}`;
+                    tooltip.textContent = `f': ${(binValue / totalGalaxies).toFixed(3)}`;
                     tooltip.style.display = "block";
                     tooltip.style.top = `${event.clientY}px`;
                     tooltip.style.left = `${event.clientX}px`;
@@ -2596,14 +2595,16 @@ const angleInRadians = (adjustedAngle * Math.PI) / -180;
 
             const yAxisLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
             yAxisLabel.setAttribute("x", margin - 25);
-        yAxisLabel.setAttribute("y", margin + 30);
-        yAxisLabel.setAttribute("text-anchor", "middle");
+            yAxisLabel.setAttribute("y", margin + 30);
+            yAxisLabel.setAttribute("text-anchor", "middle");
             yAxisLabel.setAttribute("font-size", "22");
             yAxisLabel.setAttribute("font-family", "Arial");
             yAxisLabel.setAttribute("style", "font-weight: bold; font-style: italic;");
-            yAxisLabel.textContent = "f";
+            yAxisLabel.textContent = "f'";
             svg.appendChild(yAxisLabel);
         }
+
+
       // Function to draw histogram for ellipticities
       function drawHistogramEllipticities(data, numBins) {
         const svg = document.getElementById("histogramSVG");
