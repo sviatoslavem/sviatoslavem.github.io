@@ -607,7 +607,7 @@
               value="method1"
               checked
             />
-            Consider the share of the area
+            Consider area fraction
           </label>
           <label for="densityCalculation2">
             <input
@@ -682,7 +682,7 @@
           <button onclick="analyzeByStrips()">Analyze Strips</button>
           <br />
           <button onclick="findMaxEntriesAngle()">
-            Find the angle with the most galaxy occurrences
+            Find the direction of the densest strip
           </button>
           <br />
           <div id="maxResults"></div>
@@ -707,7 +707,7 @@
           </div>
 
           <button onclick="analyzeCentralStrip()">
-            Analyze Central Strip (y>0)
+            Lighthouse beam analysis (y>0)
           </button>
           <div id="centralStripResults"></div>
         </div>
@@ -1031,42 +1031,42 @@
           ).toFixed(4)}</div>`;
         }
         /*
-        // Draw rotation line if showLine is checked
-        if (showLine) {
-          const lineLength = radius + 20;
-          const angleInRadians = (0 * Math.PI) / -180;
+              // Draw rotation line if showLine is checked
+              if (showLine) {
+                const lineLength = radius + 20;
+                const angleInRadians = (0 * Math.PI) / -180;
 
-          const startX = centerX - lineLength * Math.cos(angleInRadians);
-          const startY = centerY + lineLength * Math.sin(angleInRadians);
-          const endX = centerX + lineLength * Math.cos(angleInRadians);
-          const endY = centerY - lineLength * Math.sin(angleInRadians);
+                const startX = centerX - lineLength * Math.cos(angleInRadians);
+                const startY = centerY + lineLength * Math.sin(angleInRadians);
+                const endX = centerX + lineLength * Math.cos(angleInRadians);
+                const endY = centerY - lineLength * Math.sin(angleInRadians);
 
-          const line = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "line"
-          );
-          line.setAttribute("x1", startX);
-          line.setAttribute("y1", startY);
-          line.setAttribute("x2", endX);
-          line.setAttribute("y2", endY);
-          line.setAttribute("stroke", "black");
-          line.setAttribute("stroke-width", "1");
-          line.setAttribute("stroke-dasharray", "5, 5");
-          svg.appendChild(line);
+                const line = document.createElementNS(
+                  "http://www.w3.org/2000/svg",
+                  "line"
+                );
+                line.setAttribute("x1", startX);
+                line.setAttribute("y1", startY);
+                line.setAttribute("x2", endX);
+                line.setAttribute("y2", endY);
+                line.setAttribute("stroke", "black");
+                line.setAttribute("stroke-width", "1");
+                line.setAttribute("stroke-dasharray", "5, 5");
+                svg.appendChild(line);
 
-          // Draw start circle for the line
-          const startCircle = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "circle"
-          );
-          startCircle.setAttribute("cx", centerX);
-          startCircle.setAttribute("cy", centerY);
-          startCircle.setAttribute("r", 2);
-          startCircle.setAttribute("stroke", "black");
-          startCircle.setAttribute("stroke-width", "1");
-          startCircle.setAttribute("fill", "black");
-          svg.appendChild(startCircle);
-        }*/
+                // Draw start circle for the line
+                const startCircle = document.createElementNS(
+                  "http://www.w3.org/2000/svg",
+                  "circle"
+                );
+                startCircle.setAttribute("cx", centerX);
+                startCircle.setAttribute("cy", centerY);
+                startCircle.setAttribute("r", 2);
+                startCircle.setAttribute("stroke", "black");
+                startCircle.setAttribute("stroke-width", "1");
+                startCircle.setAttribute("fill", "black");
+                svg.appendChild(startCircle);
+              }*/
 
         // Draw histogram
         drawAngleHistogram(angleCounts, 380);
@@ -1989,20 +1989,20 @@
       }
 
       /* function createCircle(cx, cy, r, stroke = "blue", strokeWidth = 2) {
-              const circle = document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "circle"
-              );
-              circle.setAttribute("cx", cx);
-              circle.setAttribute("cy", cy);
-              circle.setAttribute("r", r);
-              circle.setAttribute("stroke", stroke);
-              circle.setAttribute("stroke-width", strokeWidth);
-              circle.setAttribute("fill", "none");
-              circle.classList.add("ring");
-              return circle;
-            }
-      */
+                    const circle = document.createElementNS(
+                      "http://www.w3.org/2000/svg",
+                      "circle"
+                    );
+                    circle.setAttribute("cx", cx);
+                    circle.setAttribute("cy", cy);
+                    circle.setAttribute("r", r);
+                    circle.setAttribute("stroke", stroke);
+                    circle.setAttribute("stroke-width", strokeWidth);
+                    circle.setAttribute("fill", "none");
+                    circle.classList.add("ring");
+                    return circle;
+                  }
+            */
       function getDataFromTable() {
         const data = [];
         const rows = document.querySelectorAll("#editableTable tr");
@@ -2049,14 +2049,14 @@
         document.getElementById("ringDistance").value =
           document.getElementById("Radius").value *
           document.getElementById("ringWith").value;
-        document.getElementById("numRings").value = Math.ceil(
+        document.getElementById("numRings").value = //Math.ceil(
           document.getElementById("Radius").value /
-            document.getElementById("ringDistance").value
-        );
+          document.getElementById("ringDistance").value;
+        //);
 
         // drawEllipsesRings();
 
-        const numRings = parseInt(document.getElementById("numRings").value);
+        let numRings = parseInt(document.getElementById("numRings").value);
         const ringDistance =
           parseFloat(document.getElementById("ringDistance").value) / 8;
         const centerX =
@@ -2070,23 +2070,36 @@
           return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
         }
 
-        const rings = Array(numRings).fill(0);
+        let rings = Array(numRings).fill(0);
         const svg = document.getElementById("mySVG");
         svg.innerHTML = "";
         drawLinesAndText();
         const previousRings = svg.querySelectorAll(".ring");
         previousRings.forEach((ring) => ring.remove());
 
+        let maxDist = 0;
+        const maxDistance = Math.max(
+          ...data.map((point) => distance(250 + 65, 250 + 10, point.x, point.y))
+        );
+        const lastRingOuterRadius = numRings * ringDistance;
+
+        if (maxDistance > lastRingOuterRadius) {
+          rings.push(0); // Додаємо нове кільце
+          numRings++;
+        }
         data.forEach((point) => {
           const adjustedX = point.x;
           const adjustedY = point.y;
           const dist = distance(centerX, centerY, adjustedX, adjustedY);
+          if (dist > maxDist) {
+            maxDist = dist;
+          }
           rings.forEach((_, index) => {
             const innerRadius = index * ringDistance;
-            const outerRadius = (index + 1) * ringDistance;
-            if (dist >= innerRadius && dist < outerRadius) {
+            var outerRadius = (index + 1) * ringDistance;
+            if (index == numRings - 1) outerRadius = maxDistance;
+            if (dist > innerRadius && dist <= outerRadius) {
               rings[index]++;
-              //const ellipse = createCircle(point.x, point.y, 3, "blue"); // C-I-O
               const ellipse = createCircleViewe(
                 point.i,
                 point.x,
@@ -2097,8 +2110,6 @@
                 "blue",
                 "lightblue"
               );
-
-              // ellipse.setAttribute("class", "ring");
               svg.appendChild(ellipse);
             }
             if (dist > outerRadius) {
@@ -2116,32 +2127,16 @@
             }
           });
         });
-        /*
-        const isInsideCenter = excludeCenter && distToCenter < stripWidth / 2;
-          const color =
-            distToCenter <= radius && !isInsideCenter ? "blue" : "red";
-          const fillColor =
-            distToCenter <= radius && !isInsideCenter
-              ? "lightblue"
-              : "lightcoral";
 
-          const ellipse = createCircleViewe(
-            rotatedPoint.i,
-            rotatedPoint.x,
-            rotatedPoint.y,
-            3,
-            0,
-            point.PA,
-            color,
-            fillColor
-          );*/
-
-        const totalArea = Math.PI * (1.0 * ringDistance) ** 2; //numRings
+        const totalArea = Math.PI * (1.0 * ringDistance) ** 2;
         const resultsDiv = document.getElementById("results");
         resultsDiv.innerHTML = "";
         rings.forEach((count, index) => {
           const innerRadius = index * ringDistance;
-          const outerRadius = (index + 1) * ringDistance;
+
+          var outerRadius = (index + 1) * ringDistance;
+          if (index == numRings - 1) outerRadius = maxDistance;
+          // console.log(index, numRings, innerRadius, outerRadius, maxDistance);
           const ringArea = calculateRingArea(innerRadius, outerRadius);
           const ringFraction = ringArea / totalArea;
           const totalGalaxies = data.length;
@@ -2158,15 +2153,23 @@
         });
 
         for (let i = 1; i <= numRings; i++) {
-          const circle = createCircle(centerX, centerY, i * ringDistance);
+          if (i == numRings)
+            var circle = createCircle(centerX, centerY, maxDistance);
+          else circle = createCircle(centerX, centerY, i * ringDistance);
           svg.appendChild(circle);
         }
         const totalGalaxies = data.length;
         const histogramData = rings.map((count, index) => {
-          const ringArea =
-            Math.PI * ((index + 1) ** 2 - index ** 2) * ringDistance ** 2;
+          //   const ringArea = Math.PI * ((index + 1) ** 2 - index ** 2) * ringDistance ** 2;
+          const innerRadius = index * ringDistance;
+
+          var outerRadius = (index + 1) * ringDistance;
+          if (index == numRings - 1) outerRadius = maxDistance;
+          // console.log(index, numRings, innerRadius, outerRadius, maxDistance);
+          const ringArea = calculateRingArea(innerRadius, outerRadius);
           const ringFraction = ringArea / totalArea;
           const density = calculateDensity(count, totalGalaxies, ringFraction);
+          // console.log(ringFraction, density);
           return { density, ringFraction };
         });
 
@@ -2194,6 +2197,10 @@
         const width = 575;
         const height = 545;
         const margin = 55;
+        let numRings2 = parseInt(document.getElementById("numRings").value);
+        var ringWidth = parseFloat(document.getElementById("ringWith").value);
+        //console.log(numRings2, ringWidth, numRings2 * ringWidth);
+        lastBar = numRings2 * ringWidth;
         const barWidth = (width - margin * 2) / data.length;
 
         const maxDensity = 0.4; //Math.max(...data.map((d) => d.density));
@@ -2226,8 +2233,8 @@
         // Create X axis labels and ticks
         const xAxisSteps = data.length; // Number of ticks based on data length
         for (let i = 0; i <= xAxisSteps; i++) {
-          const x = margin + i * barWidth;
-
+          var x = margin + i * barWidth;
+          //if (i == xAxisSteps) x = margin + i * barWidth * lastBar;
           // Labels
           if (i < xAxisSteps) {
             // Avoid adding label for the last tick
@@ -2309,13 +2316,12 @@
           const barHeight = (d.density / maxDensity) * (height - margin * 2);
 
           let adjustedBarWidth = barWidth;
-          const x = margin + index * barWidth;
+          // if (index == numRings - 1) adjustedBarWidth = barWidth * lastBar;
+          // var x = margin + i * barWidth;
 
-          // Adjust the width of the last bar if it doesn't fit
-          if (index === data.length - 1 && x + barWidth > width - margin) {
-            adjustedBarWidth = width - margin - x;
-          }
-
+          var x = margin + index * barWidth;
+          // if (index == numRings - 1) x = margin + index * barWidth * lastBar;
+          //  console.log(adjustedBarWidth, barWidth, index, numRings - 1, x);
           const rect = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "rect"
@@ -3164,38 +3170,38 @@
           svg.appendChild(ellipse);
         }
         /*
-        // Add event listener to highlight ellipse when table row is clicked
-        Array.from(table.rows).forEach((row, index) => {
-          row.addEventListener("click", function () {
-            // Remove highlight from any previously highlighted ellipse
-            var highlightedEllipse =
-              document.querySelector(".highlight-ellipse");
-            if (highlightedEllipse) {
-              highlightedEllipse.classList.remove("highlight-ellipse");
-              highlightedEllipse.setAttribute("stroke", "black");
-              highlightedEllipse.setAttribute("stroke-width", "1");
-            }
+              // Add event listener to highlight ellipse when table row is clicked
+              Array.from(table.rows).forEach((row, index) => {
+                row.addEventListener("click", function () {
+                  // Remove highlight from any previously highlighted ellipse
+                  var highlightedEllipse =
+                    document.querySelector(".highlight-ellipse");
+                  if (highlightedEllipse) {
+                    highlightedEllipse.classList.remove("highlight-ellipse");
+                    highlightedEllipse.setAttribute("stroke", "black");
+                    highlightedEllipse.setAttribute("stroke-width", "1");
+                  }
 
-            // Remove highlight from any previously highlighted row
-            var highlightedRow = document.querySelector(".highlight");
-            if (highlightedRow) {
-              highlightedRow.classList.remove("highlight");
-            }
+                  // Remove highlight from any previously highlighted row
+                  var highlightedRow = document.querySelector(".highlight");
+                  if (highlightedRow) {
+                    highlightedRow.classList.remove("highlight");
+                  }
 
-            // Highlight the corresponding ellipse
-            var ellipse = svg.querySelector(
-              `ellipse[data-row-index="${index}"]`
-            );
-            if (ellipse) {
-              ellipse.classList.add("highlight-ellipse");
-              ellipse.setAttribute("stroke", "red");
-              ellipse.setAttribute("stroke-width", "2");
-            }
+                  // Highlight the corresponding ellipse
+                  var ellipse = svg.querySelector(
+                    `ellipse[data-row-index="${index}"]`
+                  );
+                  if (ellipse) {
+                    ellipse.classList.add("highlight-ellipse");
+                    ellipse.setAttribute("stroke", "red");
+                    ellipse.setAttribute("stroke-width", "2");
+                  }
 
-            // Highlight the clicked row
-            this.classList.add("highlight");
-          });
-        });*/
+                  // Highlight the clicked row
+                  this.classList.add("highlight");
+                });
+              });*/
       }
 
       document.addEventListener("DOMContentLoaded", function () {
@@ -3293,10 +3299,10 @@
               // Перевіряємо чи косинус відхилення менше або рівне заданому значенню
               if (cosAngleDifference >= cosTolerance) {
                 resultsDiv.innerHTML += `<br><b>Galaxy  # (${point.i})</b>: (${point.x}, ${point.y}), <br>
-The nearest galaxy to it (<b># ${closestPoint.i})</b>: (${closestPoint.x}, ${closestPoint.y}), <br>
-Orientation of the galaxy: ${point.PA}, <br>
-Orientation of the nearest galaxy: ${closestPoint.PA} <br>
-The cosine of the angle deviation: ${cosAngleDifference} <br>`;
+      The nearest galaxy to it (<b># ${closestPoint.i})</b>: (${closestPoint.x}, ${closestPoint.y}), <br>
+      Orientation of the galaxy: ${point.PA}, <br>
+      Orientation of the nearest galaxy: ${closestPoint.PA} <br>
+      The cosine of the angle deviation: ${cosAngleDifference} <br>`;
 
                 const ellipse = createCircleViewe(
                   point.i,
