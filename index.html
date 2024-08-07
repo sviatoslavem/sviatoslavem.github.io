@@ -2326,6 +2326,18 @@
             "http://www.w3.org/2000/svg",
             "rect"
           );
+          // Adjust the width of the last bar if it doesn't fit
+
+          if (
+            index === data.length - 1 &&
+            Math.floor(numRings2) * ringWidth != 1
+          ) {
+            // adjustedBarWidth = width - margin - x ;
+            // adjustedBarWidth = barWidth * lastBar;
+            adjustedBarWidth =
+              ((1 - Math.floor(numRings2) * ringWidth) * barWidth) / ringWidth;
+          }
+
           rect.setAttribute("x", x);
           rect.setAttribute("y", height - margin - barHeight);
           rect.setAttribute("width", adjustedBarWidth);
@@ -2376,8 +2388,14 @@
           const x = margin + index * barWidth;
 
           // Adjust the width of the last bar if it doesn't fit
-          if (index === data.length - 1 && x + barWidth > width - margin) {
-            adjustedBarWidth = width - margin - x;
+          if (
+            index === data.length - 1 &&
+            Math.floor(numRings2) * ringWidth != 1
+          ) {
+            // adjustedBarWidth = width - margin - x ;
+            //adjustedBarWidth = barWidth * lastBar;
+            adjustedBarWidth =
+              ((1 - Math.floor(numRings2) * ringWidth) * barWidth) / ringWidth;
           }
 
           const rect = document.createElementNS(
