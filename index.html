@@ -1088,7 +1088,7 @@
         const densities = angleCounts.map((count) => count / totalGalaxies);
 
         // Normalize bin values
-        const maxDensity = 0.5; //Math.max(...densities);
+        const maxDensity = 0.4; //Math.max(...densities);
         const barWidth = (width - margin * 2) / numBins;
 
         // Create X and Y axes
@@ -2693,7 +2693,8 @@
 
         // Normalize bin values
         const totalGalaxies = data.length;
-        const maxBinValue = Math.max(...bins);
+        const maxBinValue = 65; //Math.max(...bins);
+        console.log(maxBinValue);
         const barWidth = (width - margin * 2) / numBins;
 
         // Create X and Y axes
@@ -3533,6 +3534,27 @@
       // Function to save SVG as BMP
       function histogramSVGsaveBMP() {
         var svgElement = document.getElementById("histogramSVG");
+
+        const fileInput = document.getElementById("fileInput");
+        // Отримати вибраний файл
+        const file = fileInput.files[0];
+
+        // Отримати ім'я файлу без розширення
+        const fileName = file.name.replace(/\.[^/.]+$/, ""); // Видаляємо останнє збігання крапки і тексту за нею до кінця рядка
+
+        const text = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "text"
+        );
+        text.setAttribute("x", 440); // Adjust x coordinate by subtracting 420
+        text.setAttribute("y", 60);
+        text.setAttribute("font-size", 18);
+        text.setAttribute("font-family", "Arial");
+        text.setAttribute("text-anchor", "start"); // Set text alignment
+        text.textContent = fileName;
+
+        svgElement.appendChild(text);
+
         var svgString = new XMLSerializer().serializeToString(svgElement);
 
         // Create a canvas element and set its dimensions to match the SVG
