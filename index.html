@@ -288,7 +288,8 @@
       #resultsPA,
       #results,
       #stripResults,
-      #centralStripResults {
+      #centralStripResults,
+      #resultsBinggeli {
         border-top: 1px solid #333;
         margin-top: 20px;
       }
@@ -519,6 +520,13 @@
           >
             Analysis of directionality
           </li>
+          <li
+            class="tab-link"
+            data-tab="tab-6"
+            onclick="analyzeBinggeliEffect(getDataFromTable())"
+          >
+            Binggeli Effect
+          </li>
         </ul>
         <div class="shared-content">
           <div class="text-field">
@@ -651,7 +659,7 @@
               type="number"
               id="numStrips"
               class="text-field__input"
-              value="5"
+              value="7"
               step="2"
             />
           </div>
@@ -690,7 +698,7 @@
         </div>
 
         <div id="tab-3" class="tab-content">
-          <label for="numCentralStrips">Strip Bean:</label>
+          <label for="numCentralStrips">Beam Width:</label>
           <input
             type="number"
             id="numCentralStrips"
@@ -793,6 +801,27 @@
           </button>
 
           <div id="resultsPA"></div>
+        </div>
+
+        <div id="tab-6" class="tab-content">
+          <br />
+
+          <div class="text-field">
+            <label for="AngleTolerance" class="text-field__label"
+              >Angle Tolerance:</label
+            >
+            <input
+              type="number"
+              id="AngleTolerance"
+              class="text-field__input"
+              value="10"
+              step="1"
+            />
+          </div>
+          <button onclick="analyzeBinggeliEffect(getDataFromTable())">
+            Analyze Binggeli Effect
+          </button>
+          <div id="resultsBinggeli"></div>
         </div>
       </nav>
       <div class="overlay" onclick="toggleHeaderContent()"></div>
@@ -3741,6 +3770,162 @@
             this.classList.add("highlight");
           });
         });
+      }
+
+      function analyzeBinggeliEffect(data) {
+        var svg = document.getElementById("mySVG");
+        svg.innerHTML = ""; // Очистити SVG
+        drawLinesAndText(); // Функція для відображення сітки та тексту
+
+        const resultsDiv = document.getElementById("resultsBinggeli");
+        resultsDiv.innerHTML = "";
+
+        const ResizeM = parseFloat(document.getElementById("ResizeM").value);
+        const eLimit = parseFloat(document.getElementById("eLimit").value);
+        const mLimit = parseFloat(document.getElementById("mLimit").value);
+        const angleTolerance =
+          parseFloat(document.getElementById("AngleTolerance").value) || 10; // Додана змінна для допустимого відхилення кута
+        const showOutOfFilterGalaxies = document.getElementById(
+          "showOutOfFilterGalaxies"
+        ).checked;
+
+        // Функція для розрахунку відстані між двома точками
+        function distance(x1, y1, x2, y2) {
+          return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+        }
+
+        const processedPairs = new Set();
+
+        // Фільтруємо дані
+        const filteredData = data.filter(
+          (point) => point.E > eLimit && point.m > mLimit
+        );
+        const outOfFilterData = data.filter(
+          (point) => !(point.E > eLimit && point.m > mLimit)
+        );
+
+        // Проходимо по кожній точці
+        filteredData.forEach((point, index) => {
+          let minDistance = Infinity;
+          let closestPoint = null;
+
+          // Знаходимо найближчу точку до поточної
+          for (let i = 0; i < filteredData.length; i++) {
+            if (i !== index) {
+              const dist = distance(
+                point.x,
+                point.y,
+                filteredData[i].x,
+                filteredData[i].y
+              );
+              if (dist < minDistance) {
+                minDistance = dist;
+                closestPoint = filteredData[i];
+              }
+            }
+          }
+
+          if (closestPoint) {
+            // Унікальний ключ для пари точок
+            const pairKey = `${Math.min(point.i, closestPoint.i)}-${Math.max(
+              point.i,
+              closestPoint.i
+            )}`;
+
+            if (!processedPairs.has(pairKey)) {
+              // Обчислюємо напрямок на сусіда
+              const deltaX = closestPoint.x - point.x;
+              const deltaY = closestPoint.y - point.y;
+              const directionAngle =
+                Math.atan2(deltaY, deltaX) * (180 / Math.PI); // Кут напряму на сусіда в градусах
+
+              // Обчислюємо різницю між орієнтацією галактики і напрямком на сусіда
+              const angleDifference = Math.abs(point.PA - directionAngle);
+              const adjustedAngleDifference = Math.min(
+                angleDifference,
+                360 - angleDifference
+              ); // Беремо до уваги циклічність кута
+
+              // Перевіряємо, чи різниця кута менша за допустиме відхилення
+              if (adjustedAngleDifference <= angleTolerance) {
+                resultsDiv.innerHTML += `<br><b>Galaxy  # (${point.i})</b>: (${
+                  (point.x - 250 - 65) * 8
+                }, ${(point.y - 250 - 10) * -8}), <br>
+                    The nearest galaxy to it (<b># ${closestPoint.i}</b>): (${
+                  (closestPoint.x - 250 - 65) * 8
+                }, ${(closestPoint.y - 250 - 10) * -8}), <br>
+                    Direction angle: ${directionAngle.toFixed(2)}°, <br>
+                    Orientation of the galaxy: ${point.PA}°, <br>
+                    Orientation of the nearest galaxy: ${closestPoint.PA}°, <br>
+                    Angle difference: ${adjustedAngleDifference.toFixed(
+                      2
+                    )}° <br>`;
+
+                // Візуалізуємо еліпси
+                const ellipse = createCircleViewe(
+                  point.i,
+                  point.x,
+                  point.y,
+                  point.m / 2 + ResizeM,
+                  point.E,
+                  point.PA,
+                  "black",
+                  "rgba(0,255,0, 0.5)"
+                );
+                const ellipse2 = createCircleViewe(
+                  closestPoint.i,
+                  closestPoint.x,
+                  closestPoint.y,
+                  closestPoint.m / 2 + ResizeM,
+                  closestPoint.E,
+                  closestPoint.PA,
+                  "black",
+                  "rgba(0,255,0, 0.5)"
+                );
+
+                svg.appendChild(ellipse);
+                svg.appendChild(ellipse2);
+              }
+
+              // Додаємо оброблену пару точок до набору
+              processedPairs.add(pairKey);
+            }
+          }
+        });
+
+        const ShowAllGalaxies =
+          document.getElementById("ShowAllGalaxies").checked;
+        if (ShowAllGalaxies) {
+          filteredData.forEach((point) => {
+            const ellipse = createCircleViewe(
+              point.i,
+              point.x,
+              point.y,
+              point.m / 2 + ResizeM,
+              point.E,
+              point.PA,
+              "black",
+              "rgba(0,0,0, 0.1)"
+            );
+            svg.appendChild(ellipse);
+          });
+        }
+
+        if (showOutOfFilterGalaxies) {
+          outOfFilterData.forEach((point) => {
+            const ellipse = createCircleViewe(
+              point.i,
+              point.x,
+              point.y,
+              point.m / 2 + ResizeM,
+              point.E,
+              point.PA,
+              "black",
+              "rgba(0,0,0, 0.1)"
+            );
+            svg.appendChild(ellipse);
+          });
+        }
       }
     </script>
   </body>
