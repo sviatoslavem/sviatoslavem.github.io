@@ -289,6 +289,7 @@
       #results,
       #stripResults,
       #centralStripResults,
+      #centralStripResults2,
       #resultsBinggeli {
         border-top: 1px solid #333;
         margin-top: 20px;
@@ -702,7 +703,7 @@
           <input
             type="number"
             id="numCentralStrips"
-            value="5"
+            value="7"
             class="text-field__input"
             step="2"
           />
@@ -717,6 +718,7 @@
           <button onclick="analyzeCentralStrip()">
             Lighthouse beam analysis (y>0)
           </button>
+          <div id="centralStripResults2"></div>
           <div id="centralStripResults"></div>
         </div>
 
@@ -955,6 +957,8 @@
 
         const stripResults = document.getElementById("centralStripResults");
         stripResults.innerHTML = "";
+        const stripResults2 = document.getElementById("centralStripResults2");
+        stripResults2.innerHTML = "";
 
         // Draw main circle
         const circle = document.createElementNS(
@@ -1003,7 +1007,7 @@
         const data = getDataFromTable(); // Assuming you have a function to get data points
         const totalGalaxies = data.length;
         const angleCounts = Array(380).fill(0);
-
+        var stringResult = "";
         for (let angle = 0; angle < 380; angle++) {
           let pointCount = 0;
           data.forEach((point, index) => {
@@ -1055,49 +1059,30 @@
           angleCounts[angle] = pointCount;
 
           // Display results
-          stripResults.innerHTML += `<br><div><b>α:</b>&emsp;&emsp;${angle}&emsp;&emsp;<b>Count:</b>&emsp;&emsp;${pointCount}&emsp;&emsp;<b>f':</b>&emsp;&emsp;${(
+          stringResult += `<br><div><b>α:</b>&emsp;&emsp;${angle}&emsp;&emsp;<b>Count:</b>&emsp;&emsp;${pointCount}&emsp;&emsp;<b>f':</b>&emsp;&emsp;${(
             pointCount / totalGalaxies
           ).toFixed(4)}</div>`;
         }
-        /*
-              // Draw rotation line if showLine is checked
-              if (showLine) {
-                const lineLength = radius + 20;
-                const angleInRadians = (0 * Math.PI) / -180;
+        stripResults.innerHTML = stringResult;
+        // Calculate standard deviation
+        const meanCount =
+          angleCounts.reduce((sum, count) => sum + count, 0) /
+          angleCounts.length;
+        const variance =
+          angleCounts.reduce(
+            (sum, count) => sum + (count - meanCount) ** 2,
+            0
+          ) /
+          (angleCounts.length - 1);
+        const standardDeviation = Math.sqrt(variance);
+        //console.log(meanCount, variance, standardDeviation);
 
-                const startX = centerX - lineLength * Math.cos(angleInRadians);
-                const startY = centerY + lineLength * Math.sin(angleInRadians);
-                const endX = centerX + lineLength * Math.cos(angleInRadians);
-                const endY = centerY - lineLength * Math.sin(angleInRadians);
+        // Display standard deviation
+        stripResults2.innerHTML += `<br>
+        <b>The mean value: </b>&emsp;${meanCount.toFixed(4)}<br>
+        <b>Variance:</b>&emsp;${variance.toFixed(4)}<br>
+<b>Standard Deviation (S):</b>&emsp;${standardDeviation.toFixed(4)}`;
 
-                const line = document.createElementNS(
-                  "http://www.w3.org/2000/svg",
-                  "line"
-                );
-                line.setAttribute("x1", startX);
-                line.setAttribute("y1", startY);
-                line.setAttribute("x2", endX);
-                line.setAttribute("y2", endY);
-                line.setAttribute("stroke", "black");
-                line.setAttribute("stroke-width", "1");
-                line.setAttribute("stroke-dasharray", "5, 5");
-                svg.appendChild(line);
-
-                // Draw start circle for the line
-                const startCircle = document.createElementNS(
-                  "http://www.w3.org/2000/svg",
-                  "circle"
-                );
-                startCircle.setAttribute("cx", centerX);
-                startCircle.setAttribute("cy", centerY);
-                startCircle.setAttribute("r", 2);
-                startCircle.setAttribute("stroke", "black");
-                startCircle.setAttribute("stroke-width", "1");
-                startCircle.setAttribute("fill", "black");
-                svg.appendChild(startCircle);
-              }*/
-
-        // Draw histogram
         drawAngleHistogram(angleCounts, 380);
       }
 
