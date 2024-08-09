@@ -812,18 +812,75 @@
             <label for="AngleTolerance" class="text-field__label"
               >Angle Tolerance:</label
             >
+
             <input
               type="number"
               id="AngleTolerance"
               class="text-field__input"
-              value="10"
+              value="180"
               step="1"
             />
-          </div>
+            </div>
+             <div class="text-field">
+            <label for="BinggeliResizeM" class="text-field__label"
+              >Resize m':</label
+            >
+            <input
+              type="number"
+              id="BinggeliResizeM"
+              class="text-field__input"
+              value="0"
+            />
+            </div>
+             <div class="text-field">
+            <label for="BinggelieLimit" class="text-field__label"
+              >E Limit (greater than):</label
+            >
+            <input
+              type="number"
+              id="BinggelieLimit"
+              class="text-field__input"
+              value="0.2"
+              step="0.01"
+            />
+            </div>
+             <div class="text-field">
+            <label for="BinggelimLimit" class="text-field__label"
+              >m' Limit (greater than):</label
+            >
+            <input
+              type="number"
+              id="BinggelimLimit"
+              class="text-field__input"
+              value="3"
+              step="0.1"
+            />
+</div>
+ <div class="text-field">
+            <label for="BinggeShowAllGalaxies"
+              >Show all galaxies inside the filter:</label
+            >
+            <input type="checkbox" id="BinggeShowAllGalaxies" checked />
+            
+
+
+            <label for="BinggelishowOutOfFilterGalaxies"
+              >Show all galaxies outside the filter:</label
+            >
+            <input
+              type="checkbox"
+              id="BinggelishowOutOfFilterGalaxies"
+              checked
+            />
+            </div>
+
+          
           <button onclick="analyzeBinggeliEffect(getDataFromTable())">
             Analyze Binggeli Effect
           </button>
+          
           <div id="resultsBinggeli"></div>
+          </div>
         </div>
       </nav>
       <div class="overlay" onclick="toggleHeaderContent()"></div>
@@ -1079,9 +1136,9 @@
 
         // Display standard deviation
         stripResults2.innerHTML += `<br>
-        <b>The mean value: </b>&emsp;${meanCount.toFixed(4)}<br>
-        <b>Variance:</b>&emsp;${variance.toFixed(4)}<br>
-<b>Standard Deviation (S):</b>&emsp;${standardDeviation.toFixed(4)}`;
+              <b>The mean value: </b>&emsp;${meanCount.toFixed(4)}<br>
+              <b>Variance:</b>&emsp;${variance.toFixed(4)}<br>
+      <b>Standard Deviation (S):</b>&emsp;${standardDeviation.toFixed(4)}`;
 
         drawAngleHistogram(angleCounts, 380);
       }
@@ -2003,20 +2060,20 @@
       }
 
       /* function createCircle(cx, cy, r, stroke = "blue", strokeWidth = 2) {
-                    const circle = document.createElementNS(
-                      "http://www.w3.org/2000/svg",
-                      "circle"
-                    );
-                    circle.setAttribute("cx", cx);
-                    circle.setAttribute("cy", cy);
-                    circle.setAttribute("r", r);
-                    circle.setAttribute("stroke", stroke);
-                    circle.setAttribute("stroke-width", strokeWidth);
-                    circle.setAttribute("fill", "none");
-                    circle.classList.add("ring");
-                    return circle;
-                  }
-            */
+                          const circle = document.createElementNS(
+                            "http://www.w3.org/2000/svg",
+                            "circle"
+                          );
+                          circle.setAttribute("cx", cx);
+                          circle.setAttribute("cy", cy);
+                          circle.setAttribute("r", r);
+                          circle.setAttribute("stroke", stroke);
+                          circle.setAttribute("stroke-width", strokeWidth);
+                          circle.setAttribute("fill", "none");
+                          circle.classList.add("ring");
+                          return circle;
+                        }
+                  */
       function getDataFromTable() {
         const data = [];
         const rows = document.querySelectorAll("#editableTable tr");
@@ -3203,38 +3260,38 @@
           svg.appendChild(ellipse);
         }
         /*
-              // Add event listener to highlight ellipse when table row is clicked
-              Array.from(table.rows).forEach((row, index) => {
-                row.addEventListener("click", function () {
-                  // Remove highlight from any previously highlighted ellipse
-                  var highlightedEllipse =
-                    document.querySelector(".highlight-ellipse");
-                  if (highlightedEllipse) {
-                    highlightedEllipse.classList.remove("highlight-ellipse");
-                    highlightedEllipse.setAttribute("stroke", "black");
-                    highlightedEllipse.setAttribute("stroke-width", "1");
-                  }
+                    // Add event listener to highlight ellipse when table row is clicked
+                    Array.from(table.rows).forEach((row, index) => {
+                      row.addEventListener("click", function () {
+                        // Remove highlight from any previously highlighted ellipse
+                        var highlightedEllipse =
+                          document.querySelector(".highlight-ellipse");
+                        if (highlightedEllipse) {
+                          highlightedEllipse.classList.remove("highlight-ellipse");
+                          highlightedEllipse.setAttribute("stroke", "black");
+                          highlightedEllipse.setAttribute("stroke-width", "1");
+                        }
 
-                  // Remove highlight from any previously highlighted row
-                  var highlightedRow = document.querySelector(".highlight");
-                  if (highlightedRow) {
-                    highlightedRow.classList.remove("highlight");
-                  }
+                        // Remove highlight from any previously highlighted row
+                        var highlightedRow = document.querySelector(".highlight");
+                        if (highlightedRow) {
+                          highlightedRow.classList.remove("highlight");
+                        }
 
-                  // Highlight the corresponding ellipse
-                  var ellipse = svg.querySelector(
-                    `ellipse[data-row-index="${index}"]`
-                  );
-                  if (ellipse) {
-                    ellipse.classList.add("highlight-ellipse");
-                    ellipse.setAttribute("stroke", "red");
-                    ellipse.setAttribute("stroke-width", "2");
-                  }
+                        // Highlight the corresponding ellipse
+                        var ellipse = svg.querySelector(
+                          `ellipse[data-row-index="${index}"]`
+                        );
+                        if (ellipse) {
+                          ellipse.classList.add("highlight-ellipse");
+                          ellipse.setAttribute("stroke", "red");
+                          ellipse.setAttribute("stroke-width", "2");
+                        }
 
-                  // Highlight the clicked row
-                  this.classList.add("highlight");
-                });
-              });*/
+                        // Highlight the clicked row
+                        this.classList.add("highlight");
+                      });
+                    });*/
       }
 
       document.addEventListener("DOMContentLoaded", function () {
@@ -3332,10 +3389,10 @@
               // Перевіряємо чи косинус відхилення менше або рівне заданому значенню
               if (cosAngleDifference >= cosTolerance) {
                 resultsDiv.innerHTML += `<br><b>Galaxy  # (${point.i})</b>: (${point.x}, ${point.y}), <br>
-      The nearest galaxy to it (<b># ${closestPoint.i})</b>: (${closestPoint.x}, ${closestPoint.y}), <br>
-      Orientation of the galaxy: ${point.PA}, <br>
-      Orientation of the nearest galaxy: ${closestPoint.PA} <br>
-      The cosine of the angle deviation: ${cosAngleDifference} <br>`;
+            The nearest galaxy to it (<b># ${closestPoint.i})</b>: (${closestPoint.x}, ${closestPoint.y}), <br>
+            Orientation of the galaxy: ${point.PA}, <br>
+            Orientation of the nearest galaxy: ${closestPoint.PA} <br>
+            The cosine of the angle deviation: ${cosAngleDifference} <br>`;
 
                 const ellipse = createCircleViewe(
                   point.i,
@@ -3765,13 +3822,19 @@
         const resultsDiv = document.getElementById("resultsBinggeli");
         resultsDiv.innerHTML = "";
 
-        const ResizeM = parseFloat(document.getElementById("ResizeM").value);
-        const eLimit = parseFloat(document.getElementById("eLimit").value);
-        const mLimit = parseFloat(document.getElementById("mLimit").value);
+        const ResizeM = parseFloat(
+          document.getElementById("BinggeliResizeM").value
+        );
+        const eLimit = parseFloat(
+          document.getElementById("BinggelieLimit").value
+        );
+        const mLimit = parseFloat(
+          document.getElementById("BinggelimLimit").value
+        );
         const angleTolerance =
           parseFloat(document.getElementById("AngleTolerance").value) || 10; // Додана змінна для допустимого відхилення кута
         const showOutOfFilterGalaxies = document.getElementById(
-          "showOutOfFilterGalaxies"
+          "BinggelishowOutOfFilterGalaxies"
         ).checked;
 
         // Функція для розрахунку відстані між двома точками
@@ -3780,6 +3843,8 @@
         }
 
         const processedPairs = new Set();
+
+         const cosTetaValues = [];
 
         // Фільтруємо дані
         const filteredData = data.filter(
@@ -3819,32 +3884,50 @@
 
             if (!processedPairs.has(pairKey)) {
               // Обчислюємо напрямок на сусіда
-              const deltaX = closestPoint.x - point.x;
-              const deltaY = closestPoint.y - point.y;
-              const directionAngle =
-                Math.atan2(deltaY, deltaX) * (180 / Math.PI); // Кут напряму на сусіда в градусах
+              const deltaX =
+                (closestPoint.x - 250 - 65) * 8 - (point.x - 250 - 65) * 8;
+              const deltaY =
+                (closestPoint.y - 250 - 10) * -8 - (point.y - 250 - 10) * -8;
+              const directionAngle = Math.sqrt(
+                Math.pow(deltaX, 2) + Math.pow(deltaY, 2)
+              ); //Math.atan2(deltaY, deltaX); // * (180 / Math.PI); // Кут напряму на сусіда в градусах
+              const directionRad = Math.acos(deltaY / directionAngle);
+              const pointPARad = (point.PA * Math.PI) / 180;
+              const cosTeta = Math.abs(
+                Math.cos(pointPARad) * Math.cos(directionRad) +
+                  Math.sin(pointPARad) * Math.sin(directionRad)
+              );
 
               // Обчислюємо різницю між орієнтацією галактики і напрямком на сусіда
-              const angleDifference = Math.abs(point.PA - directionAngle);
-              const adjustedAngleDifference = Math.min(
-                angleDifference,
-                360 - angleDifference
-              ); // Беремо до уваги циклічність кута
-
+              const angleDifference = Math.abs(
+                point.PA - directionRad * (180 / Math.PI)
+              );
+              const adjustedAngleDifference =
+                Math.acos(cosTeta) * (180 / Math.PI);
+ 
               // Перевіряємо, чи різниця кута менша за допустиме відхилення
               if (adjustedAngleDifference <= angleTolerance) {
+                 cosTetaValues.push(cosTeta);
                 resultsDiv.innerHTML += `<br><b>Galaxy  # (${point.i})</b>: (${
                   (point.x - 250 - 65) * 8
                 }, ${(point.y - 250 - 10) * -8}), <br>
-                    The nearest galaxy to it (<b># ${closestPoint.i}</b>): (${
-                  (closestPoint.x - 250 - 65) * 8
-                }, ${(closestPoint.y - 250 - 10) * -8}), <br>
-                    Direction angle: ${directionAngle.toFixed(2)}°, <br>
-                    Orientation of the galaxy: ${point.PA}°, <br>
-                    Orientation of the nearest galaxy: ${closestPoint.PA}°, <br>
-                    Angle difference: ${adjustedAngleDifference.toFixed(
-                      2
-                    )}° <br>`;
+                          The nearest galaxy to it (<b># ${
+                            closestPoint.i
+                          }</b>): (${(closestPoint.x - 250 - 65) * 8}, ${
+                  (closestPoint.y - 250 - 10) * -8
+                }), <br>
+                          Direction angle: ${(
+                            directionRad *
+                            (180 / Math.PI)
+                          ).toFixed(2)}°, <br>
+                          Orientation of the galaxy: ${point.PA}°, <br>
+                          Orientation of the nearest galaxy: ${
+                            closestPoint.PA
+                          }°, <br>
+                          Cos(θ): ${cosTeta.toFixed(2)} rad,  <br>
+                          Angle Difference (θ): ${adjustedAngleDifference.toFixed(
+                            2
+                          )}° <br>`;
 
                 // Візуалізуємо еліпси
                 const ellipse = createCircleViewe(
@@ -3870,6 +3953,18 @@
 
                 svg.appendChild(ellipse);
                 svg.appendChild(ellipse2);
+                // Візуалізуємо лінію, що вказує напрямок
+                const line = document.createElementNS(
+                  "http://www.w3.org/2000/svg",
+                  "line"
+                );
+                line.setAttribute("x1", point.x);
+                line.setAttribute("y1", point.y);
+                line.setAttribute("x2", closestPoint.x);
+                line.setAttribute("y2", closestPoint.y);
+                line.setAttribute("stroke", "red");
+                line.setAttribute("stroke-width", "2");
+                svg.appendChild(line);
               }
 
               // Додаємо оброблену пару точок до набору
@@ -3878,8 +3973,9 @@
           }
         });
 
-        const ShowAllGalaxies =
-          document.getElementById("ShowAllGalaxies").checked;
+        const ShowAllGalaxies = document.getElementById(
+          "BinggeShowAllGalaxies"
+        ).checked;
         if (ShowAllGalaxies) {
           filteredData.forEach((point) => {
             const ellipse = createCircleViewe(
@@ -3911,7 +4007,187 @@
             svg.appendChild(ellipse);
           });
         }
+        drawHistogramBinggeli(cosTetaValues, 10);
       }
-    </script>
+
+      function drawHistogramBinggeli(cosTetaValues, numBins) {
+    const svg = document.getElementById("histogramSVG");
+    svg.innerHTML = "";
+
+    const width = 575;
+    const height = 545;
+    const margin = 55;
+
+    // Розподіл значень cosTeta на біни
+    const binWidth = 1 / numBins; // Діапазон [0, 1] розділений на кількість бін
+    const bins = new Array(numBins).fill(0);
+
+    cosTetaValues.forEach((value) => {
+        const binIndex = Math.floor(value / binWidth);
+        if (binIndex >= 0 && binIndex < numBins) {
+            bins[binIndex]++;
+        }
+    });
+
+    // Масштабування значень бінів
+    const totalGalaxies = cosTetaValues.length;
+    const barWidth = (width - margin * 2) / numBins;
+    const maxBinValue = 0.5;
+
+    // Створення осей X і Y
+    const xAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    xAxis.setAttribute("x1", margin);
+    xAxis.setAttribute("y1", height - margin);
+    xAxis.setAttribute("x2", width - margin);
+    xAxis.setAttribute("y2", height - margin);
+    xAxis.setAttribute("stroke-width", "2");
+    xAxis.setAttribute("stroke", "black");
+    svg.appendChild(xAxis);
+
+    const yAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    yAxis.setAttribute("x1", margin);
+    yAxis.setAttribute("y1", margin);
+    yAxis.setAttribute("x2", margin);
+    yAxis.setAttribute("y2", height - margin);
+    yAxis.setAttribute("stroke-width", "2");
+    yAxis.setAttribute("stroke", "black");
+    svg.appendChild(yAxis);
+
+    const yScale = maxBinValue > 0 ? (height - 2 * margin) / maxBinValue : 0;
+
+
+// Додавання підписів осі Y, тік та сітки
+    const yAxisSteps = 5;
+    for (let i = 0; i < yAxisSteps; i++) {
+        const y = height - margin - ((height - margin * 2) / yAxisSteps) * i;
+        const relativeFrequency = (i * 0.1).toFixed(2);
+
+        // Підписи
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", margin - 10);
+        text.setAttribute("y", y + 3);
+        text.setAttribute("text-anchor", "end");
+        text.setAttribute("font-size", "18");
+        text.setAttribute("font-family", "Arial");
+        text.textContent = relativeFrequency;
+        svg.appendChild(text);
+
+        // Тіки
+        const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        tick.setAttribute("x1", margin - 5);
+        tick.setAttribute("y1", y);
+        tick.setAttribute("x2", margin);
+        tick.setAttribute("y2", y);
+        tick.setAttribute("stroke", "black");
+        svg.appendChild(tick);
+
+        // Сітка
+        const gridLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        gridLine.setAttribute("x1", margin);
+        gridLine.setAttribute("y1", y);
+        gridLine.setAttribute("x2", width - margin);
+        gridLine.setAttribute("y2", y);
+        gridLine.setAttribute("stroke", "lightgray");
+        gridLine.setAttribute("stroke-dasharray", "2,2");
+        svg.appendChild(gridLine);
+    }
+
+
+    // Додавання стовпців гістограми
+    bins.forEach((binValue, index) => {
+        const rectHeight = (binValue / totalGalaxies) * yScale;
+
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", margin + index * barWidth);
+        rect.setAttribute("y", height - margin - rectHeight);
+        rect.setAttribute("width", barWidth); // Ширина стовпців з проміжком
+        rect.setAttribute("height", rectHeight);
+        rect.setAttribute("fill", "#ccc");
+        rect.setAttribute("stroke", "#000");
+
+        // Tooltip (title attribute)
+        rect.setAttribute("title", `f: ${(binValue / totalGalaxies).toFixed(3)}`);
+
+        // Mouseover event listener for tooltip
+        rect.addEventListener("mouseover", (event) => {
+            const tooltip = document.getElementById("tooltip");
+            tooltip.textContent = `f: ${(binValue / totalGalaxies).toFixed(3)}`;
+            tooltip.style.display = "block";
+            tooltip.style.top = `${event.clientY}px`;
+            tooltip.style.left = `${event.clientX}px`;
+            rect.setAttribute("fill", "gray");
+        });
+
+        // Mouseout event listener to hide tooltip
+        rect.addEventListener("mouseout", () => {
+            const tooltip = document.getElementById("tooltip");
+            tooltip.style.display = "none";
+            rect.setAttribute("fill", "#ccc");
+        });
+
+        svg.appendChild(rect);
+    });
+
+    // Додавання підписів осі X та тік
+    for (let i = 0; i <= numBins; i++) {
+        const x = margin + i * barWidth;
+
+        // Підписи
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", x);
+        text.setAttribute("y", height - margin + 25);
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("font-size", "18");
+        text.setAttribute("font-family", "Arial");
+        //if (i % 2 == 0) 
+        text.textContent = (i * binWidth).toFixed(1);
+        svg.appendChild(text);
+
+        // Тіки
+        const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        tick.setAttribute("x1", x);
+        tick.setAttribute("y1", height - margin);
+        tick.setAttribute("x2", x);
+        tick.setAttribute("y2", height - margin + 5);
+        tick.setAttribute("stroke", "black");
+        svg.appendChild(tick);
+    }
+
+    
+
+    // Додавання підписів осей
+    const xAxisLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    xAxisLabel.setAttribute("x", width / 2);
+    xAxisLabel.setAttribute("y", height - margin / 2 + 20);
+    xAxisLabel.setAttribute("text-anchor", "middle");
+    xAxisLabel.setAttribute("font-size", "22");
+    xAxisLabel.setAttribute("font-family", "Arial");
+    xAxisLabel.setAttribute("style", "font-weight: bold; font-style: italic;");
+    xAxisLabel.textContent = "cos(θ)";
+    svg.appendChild(xAxisLabel);
+
+    const yAxisLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    yAxisLabel.setAttribute("x", margin - 25);
+    yAxisLabel.setAttribute("y", margin + 30);
+    yAxisLabel.setAttribute("text-anchor", "middle");
+    yAxisLabel.setAttribute("font-size", "22");
+    yAxisLabel.setAttribute("font-family", "Arial");
+    yAxisLabel.setAttribute("style", "font-weight: bold; font-style: italic;");
+    yAxisLabel.textContent = "f";
+    svg.appendChild(yAxisLabel);
+
+    // Tooltip element
+    const tooltip = document.createElement("div");
+    tooltip.setAttribute("id", "tooltip");
+    tooltip.style.position = "absolute";
+    tooltip.style.display = "none";
+    tooltip.style.background = "rgba(0, 0, 0, 0.7)";
+    tooltip.style.color = "#fff";
+    tooltip.style.padding = "5px";
+    document.body.appendChild(tooltip);
+}
+
+
+   </script>
   </body>
 </html>
