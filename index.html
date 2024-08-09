@@ -1121,13 +1121,17 @@
           ).toFixed(4)}</div>`;
         }
         stripResults.innerHTML = stringResult;
+
+
+        //console.log(totalPoints, totalGalaxies);
+       // const densities = angleCounts.map((count) => count / totalGalaxies);
         // Calculate standard deviation
         const meanCount =
-          angleCounts.reduce((sum, count) => sum + count, 0) /
+          angleCounts.reduce((sum, count) => sum + count/totalGalaxies, 0) /
           angleCounts.length;
         const variance =
           angleCounts.reduce(
-            (sum, count) => sum + (count - meanCount) ** 2,
+            (sum, count) => sum + (count/totalGalaxies - meanCount) ** 2,
             0
           ) /
           (angleCounts.length - 1);
