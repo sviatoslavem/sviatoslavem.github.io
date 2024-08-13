@@ -1025,14 +1025,7 @@
         const svg = document.getElementById("mySVG");
         svg.innerHTML = "";
         drawLinesAndText();
-// Переконатися, що елемент існує
-if (svg) {
-    svg.scrollIntoView({
-        behavior: 'smooth', // Плавна прокрутка
-        block: 'center',    // Вирівнювання по вертикалі (по центру)
-        inline: 'nearest'   // Вирівнювання по горизонталі (найближче)
-    });
-}
+
         const stripResults = document.getElementById("centralStripResults");
         stripResults.innerHTML = "";
         const stripResults2 = document.getElementById("centralStripResults2");
@@ -1591,14 +1584,7 @@ if (svg) {
         const svg = document.getElementById("mySVG");
         svg.innerHTML = "";
         drawLinesAndText();
-// Переконатися, що елемент існує
-if (svg) {
-    svg.scrollIntoView({
-        behavior: 'smooth', // Плавна прокрутка
-        block: 'center',    // Вирівнювання по вертикалі (по центру)
-        inline: 'nearest'   // Вирівнювання по горизонталі (найближче)
-    });
-}
+
         const stripResults = document.getElementById("stripResults");
         stripResults.innerHTML = "";
 
@@ -1980,7 +1966,17 @@ if (svg) {
           document.getElementById("centerX").value = 0;
           document.getElementById("centerY").value = 0;
           var svg = document.getElementById("histogramSVG");
+          var svg2 = document.getElementById("mySVG");
           svg.innerHTML = ""; // Clear the SVG
+          //svg2.innerHTML = ""; // Clear the SVG
+          // Переконатися, що елемент існує
+if (svg2) {
+    svg2.scrollIntoView({
+        behavior: 'smooth', // Плавна прокрутка
+        block: 'center',    // Вирівнювання по вертикалі (по центру)
+        inline: 'nearest'   // Вирівнювання по горизонталі (найближче)
+    });
+}
         };
 
         reader.readAsText(file);
@@ -2177,17 +2173,6 @@ if (svg) {
         const svg = document.getElementById("mySVG");
         svg.innerHTML = "";
         drawLinesAndText();
-
-// Переконатися, що елемент існує
-if (svg) {
-    svg.scrollIntoView({
-        behavior: 'smooth', // Плавна прокрутка
-        block: 'center',    // Вирівнювання по вертикалі (по центру)
-        inline: 'nearest'   // Вирівнювання по горизонталі (найближче)
-    });
-}
-
-
         const previousRings = svg.querySelectorAll(".ring");
         previousRings.forEach((ring) => ring.remove());
 
@@ -3390,14 +3375,7 @@ ellipse.addEventListener("click", function () {
         var svg = document.getElementById("mySVG");
         svg.innerHTML = ""; // Clear the SVG
         drawLinesAndText();
-// Переконатися, що елемент існує
-if (svg) {
-    svg.scrollIntoView({
-        behavior: 'smooth', // Плавна прокрутка
-        block: 'center',    // Вирівнювання по вертикалі (по центру)
-        inline: 'nearest'   // Вирівнювання по горизонталі (найближче)
-    });
-}
+
         const resultsDiv = document.getElementById("resultsPA");
         resultsDiv.innerHTML = "";
 
@@ -3918,14 +3896,7 @@ if (svg) {
         var svg = document.getElementById("mySVG");
         svg.innerHTML = ""; // Очистити SVG
         drawLinesAndText(); // Функція для відображення сітки та тексту
-// Переконатися, що елемент існує
-if (svg) {
-    svg.scrollIntoView({
-        behavior: 'smooth', // Плавна прокрутка
-        block: 'center',    // Вирівнювання по вертикалі (по центру)
-        inline: 'nearest'   // Вирівнювання по горизонталі (найближче)
-    });
-}
+
         const resultsDiv = document.getElementById("resultsBinggeli");
         resultsDiv.innerHTML = "";
 
