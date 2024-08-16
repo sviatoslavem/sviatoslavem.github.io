@@ -287,6 +287,7 @@
       }
       #resultsPA,
       #results,
+      #resultsCIO,
       #stripResults,
       #centralStripResults,
       #centralStripResults2,
@@ -648,6 +649,7 @@
             <span id="progressPercentage">0%</span>
             <span id="resultFindHighestDensityCenter"></span>
           </div>
+          <div id="resultsCIO"></div>
           <div id="results"></div>
         </div>
 
@@ -1122,7 +1124,8 @@
                 0,
                 point.PA,
                 color,
-                fillColor
+                fillColor,
+                point.BG
               );
               svg.appendChild(ellipse);
             }
@@ -1671,7 +1674,8 @@
             0,
             point.PA,
             color,
-            fillColor
+            fillColor,
+            point.BG
           );
           svg.appendChild(ellipse);
 
@@ -1750,7 +1754,8 @@
                   0,
                   point.PA,
                   "green",
-                  "lightgreen"
+                  "lightgreen",
+                  point.BG
                 );
                 svg.appendChild(ellipse);
               }
@@ -2115,7 +2120,8 @@ if (svg2) {
           const m = parseFloat(cells[3].textContent.replace(",", "."));
           const E = parseFloat(cells[4].textContent.replace(",", "."));
           const PA = parseFloat(cells[5].textContent.replace(",", ".")); //correct PA
-          data.push({ i, x, y, m, E, PA });
+          const BG = parseFloat(cells[6].textContent.replace(",", "."));
+          data.push({ i, x, y, m, E, PA, BG });
         });
 
         return data;
@@ -2207,7 +2213,8 @@ if (svg2) {
                 0,
                 point.PA,
                 "blue",
-                "lightblue"
+                "lightblue",
+                point.BG
               );
               svg.appendChild(ellipse);
             }
@@ -2220,7 +2227,8 @@ if (svg2) {
                 0,
                 point.PA,
                 "red",
-                "lightcoral"
+                "lightcoral",
+                point.BG
               );
               svg.appendChild(ellipse);
             }
@@ -2229,7 +2237,11 @@ if (svg2) {
 
         const totalArea = Math.PI * (1.0 * ringDistance) ** 2;
         const resultsDiv = document.getElementById("results");
+const resultsDiv2 = document.getElementById("resultsCIO");
+
         resultsDiv.innerHTML = "";
+        resultsDiv2.innerHTML = "";
+        const totalGalaxies = data.length;
         rings.forEach((count, index) => {
           const innerRadius = index * ringDistance;
 
@@ -2238,7 +2250,12 @@ if (svg2) {
           // console.log(index, numRings, innerRadius, outerRadius, maxDistance);
           const ringArea = calculateRingArea(innerRadius, outerRadius);
           const ringFraction = ringArea / totalArea;
-          const totalGalaxies = data.length;
+        //  const totalGalaxies = data.length;
+
+ 
+
+
+
 
           resultsDiv.innerHTML += `<br><b>Ring ${
             index + 1
@@ -2250,6 +2267,24 @@ if (svg2) {
             ringFraction
           ).toFixed(4)}<br>`;
         });
+// Calculate standard deviation
+        const meanCount =
+          rings.reduce((sum, count) => sum + count/totalGalaxies, 0) /
+          rings.length;
+        const variance =
+          rings.reduce(
+            (sum, count) => sum + (count/totalGalaxies - meanCount) ** 2,
+            0
+          ) /
+          (rings.length - 1);
+        const standardDeviation = Math.sqrt(variance);
+        //console.log(meanCount, variance, standardDeviation);
+
+        // Display standard deviation
+        resultsDiv2.innerHTML += `<br>
+              <b>The mean value: </b>&emsp;${meanCount.toFixed(4)}<br>
+              <b>Variance:</b>&emsp;${variance.toFixed(4)}<br>
+      <b>Standard Deviation (S):</b>&emsp;${standardDeviation.toFixed(4)}`;
 
         for (let i = 1; i <= numRings; i++) {
           if (i == numRings)
@@ -2257,7 +2292,7 @@ if (svg2) {
           else circle = createCircle(centerX, centerY, i * ringDistance);
           svg.appendChild(circle);
         }
-        const totalGalaxies = data.length;
+        //const totalGalaxies = data.length;
         const histogramData = rings.map((count, index) => {
           //   const ringArea = Math.PI * ((index + 1) ** 2 - index ** 2) * ringDistance ** 2;
           const innerRadius = index * ringDistance;
@@ -3115,7 +3150,7 @@ if (svg) {
         return circle;
       }
 
-      function createCircleViewe(i, x, y, m, E, PA, color, fillColor) {
+      function createCircleViewe(i, x, y, m, E, PA, color, fillColor, BG) {
         var table = document.getElementById("editableTable");
         var radius = m;
         var ellipticity = E;
@@ -3135,7 +3170,9 @@ if (svg) {
         ellipse.setAttribute("ry", B);
         ellipse.setAttribute("transform", `rotate(${angle + 90}, ${x}, ${y})`);
         ellipse.setAttribute("stroke", color); // color
+        if(BG==0)
         ellipse.setAttribute("stroke-width", 1);
+      else ellipse.setAttribute("stroke-width", 2);
         ellipse.setAttribute("fill", fillColor);
         ellipse.setAttribute("data-row-index", i);
 
@@ -3168,6 +3205,8 @@ if (svg) {
         });
 
         // Add event listener to highlight table row when ellipse is clicked
+           // Remove highlight from any previously highlighted ellipse
+
 ellipse.addEventListener("click", function () {
   
   // Remove highlight from any previously highlighted row
@@ -3209,6 +3248,7 @@ ellipse.addEventListener("click", function () {
 
         return ellipse;
       }
+      
       function toggleRings() {
         const showRings = document.getElementById("showRings").checked;
         const rings = document.querySelectorAll(".ring");
@@ -3457,7 +3497,8 @@ ellipse.addEventListener("click", function () {
                   point.E,
                   point.PA,
                   "black",
-                  "rgba(255,0,0, 0.5)"
+                  "rgba(255,0,0, 0.5)",
+                  point.BG
                 );
                 const ellipse2 = createCircleViewe(
                   closestPoint.i,
@@ -3467,7 +3508,8 @@ ellipse.addEventListener("click", function () {
                   closestPoint.E,
                   closestPoint.PA,
                   "black",
-                  "rgba(255,0,0, 0.5)"
+                  "rgba(255,0,0, 0.5)",
+                  point.BG
                 );
 
                 const distantLine =
@@ -3569,7 +3611,8 @@ ellipse.addEventListener("click", function () {
               point.E,
               point.PA,
               "black",
-              "rgba(0,0,0, 0.1)"
+              "rgba(0,0,0, 0.1)",
+              point.BG
             );
             svg.appendChild(ellipse);
           });
@@ -3585,7 +3628,8 @@ ellipse.addEventListener("click", function () {
               point.E,
               point.PA,
               "black",
-              "rgba(0,0,0, 0.1)"
+              "rgba(0,0,0, 0.1)",
+              point.BG
             );
             svg.appendChild(ellipse);
           });
@@ -3735,6 +3779,23 @@ ellipse.addEventListener("click", function () {
 
         svg.innerHTML = ""; // Clear the SVG
         drawLinesAndText();
+        const data = getDataFromTable();
+data.forEach((point, index) => {
+const ellipse = createCircleViewe(
+                  point.i,
+                  point.x,
+                  point.y,
+                  point.m/2,
+                  point.E,
+                  point.PA,
+                  `rgba(${point.BG*25 + 0},${point.BG*25 + 0},${point.BG*25 + 0}, ${point.BG*1 + 0.4})`,
+                  `rgba(${point.BG*25 + 0},${point.BG*25 + 0},${point.BG*25 + 0}, ${point.BG*1 + 0.4})`,
+                  point.BG
+                );//`rotate(${angle + 90}, ${x}, ${y})`
+          svg.appendChild(ellipse);
+});
+
+/*
         for (var i = 1; i < table.rows.length; i++) {
           var x =
             parseFloat(table.rows[i].cells[1].innerHTML.replace(",", ".")) / 8 +
@@ -3854,7 +3915,7 @@ ellipse.addEventListener("click", function () {
 
           svg.appendChild(ellipse);
         }
-
+*/
         // Add event listener to highlight ellipse when table row is clicked
         Array.from(table.rows).forEach((row, index) => {
           row.addEventListener("click", function () {
@@ -3890,6 +3951,7 @@ ellipse.addEventListener("click", function () {
             
           });
         });
+        
       }
 
       function analyzeBinggeliEffect(data) {
@@ -4018,8 +4080,9 @@ const countBins = parseFloat(
                   point.E,
                   point.PA,
                   "black",
-                  "rgba(0,255,0, 0.5)"
-                );
+                  `rgba(${0},${255},${0}, ${ 0.5})`,
+                  point.BG
+                );//`rgba(${point.BG*25 + 0},${point.BG*25 + 0},${point.BG*25 + 0}, ${point.BG*1 + 0.4})`
                 const ellipse2 = createCircleViewe(
                   closestPoint.i,
                   closestPoint.x,
@@ -4028,7 +4091,8 @@ const countBins = parseFloat(
                   closestPoint.E,
                   closestPoint.PA,
                   "black",
-                  "rgba(0,255,0, 0.5)"
+                  `rgba(${0},${255},${0}, ${ 0.5})`,
+                  point.BG
                 );
 
                 svg.appendChild(ellipse);
@@ -4066,7 +4130,8 @@ const countBins = parseFloat(
               point.E,
               point.PA,
               "black",
-              "rgba(0,0,0, 0.1)"
+`rgba(${0},${0},${0}, ${0.1})`,
+point.BG
             );
             svg.appendChild(ellipse);
           });
@@ -4082,7 +4147,8 @@ const countBins = parseFloat(
               point.E,
               point.PA,
               "black",
-              "rgba(0,0,0, 0.1)"
+              `rgba(${0},${0},${0}, ${0.1})`,
+              point.BG
             );
             svg.appendChild(ellipse);
           });
