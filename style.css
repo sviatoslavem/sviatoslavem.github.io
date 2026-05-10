@@ -1,0 +1,292 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 94%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 94%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 90%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+    
+    /* Legacy JS Variables */
+    --primary-color: hsl(222.2 47.4% 11.2%);
+    --accent-color: hsl(210 40% 96.1%);
+    --background-color: hsl(0 0% 100%);
+    --border-color: hsl(214.3 31.8% 91.4%);
+    --text-color: hsl(222.2 84% 4.9%);
+  }
+}
+
+/* JS toggled classes and essential element styling */
+.highlight {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.tooltip {
+  position: absolute;
+  background-color: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  padding: 5px 8px;
+  display: none;
+  pointer-events: none;
+  z-index: 50;
+  margin: 15px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  font-size: 0.875rem;
+}
+
+.highlight-ellipse {
+  fill: hsl(142.1 76.2% 36.3%); /* Green */
+  stroke-width: 1 !important;
+}
+
+ellipse:hover {
+  stroke-width: 2;
+  stroke: hsl(0 84.2% 60.2%); /* Red */
+  cursor: pointer;
+}
+
+.ring {
+  fill: none;
+  stroke: hsl(221.2 83.2% 53.3%); /* Blue */
+  stroke-width: 1;
+}
+
+/* Specific elements */
+#editableTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#editableTable th,
+#editableTable td {
+  border: 1px solid hsl(var(--border));
+  padding: 8px;
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+#editableTable th {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  font-weight: 500;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+#editableTable td.number-cell {
+  background-color: hsl(var(--muted) / 0.5);
+}
+
+#mySVG,
+#histogramSVG {
+  width: 96%;
+  margin: 10px auto;
+  display: block;
+  border: 1px solid hsl(var(--border));
+  height: auto;
+  border-radius: var(--radius);
+  background-color: white;
+}
+
+#plot3d {
+  width: 96%;
+  height: 64vh;
+  box-sizing: border-box;
+  border: 1px solid hsl(var(--border));
+  margin: 10px auto;
+  border-radius: var(--radius);
+}
+
+/* Nav tabs */
+nav .tabs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+  background: hsl(var(--muted));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+nav .tab-link {
+  padding: 12px 10px;
+  cursor: pointer;
+  color: hsl(var(--muted-foreground));
+  text-align: center;
+  border: none;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+nav .tab-link:hover {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+nav .tab-link.active {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border-bottom: 2px solid hsl(var(--primary));
+}
+
+.tab-content {
+  display: none;
+  padding: 20px;
+  background-color: hsl(var(--background));
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.shared-content {
+  display: none;
+  padding: 20px 20px 0 20px;
+}
+
+.show-shared-content .shared-content {
+  display: block;
+}
+
+#progressContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+#progressPercentage {
+  display: none;
+}
+
+#resultsPA,
+#results,
+#resultsCIO,
+#stripResults,
+#centralStripResults,
+#centralStripResults2,
+#resultsBinggeli {
+  border-top: 1px solid hsl(var(--border));
+  margin-top: 20px;
+  padding-top: 10px;
+  font-size: 0.875rem;
+}
+
+.sort-indicator {
+  font-size: 14px;
+  margin: 0 8px;
+  position: absolute;
+  scale: 1.6;
+  font-family: unset;
+}
+
+.text-field {
+  margin-bottom: 1rem;
+}
+
+.text-field__label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Modals overlays */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 500;
+  display: none;
+}
+
+.show-overlay .overlay {
+  display: block;
+}
+
+.highlight-info {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  border: 1px solid hsl(var(--border));
+}
+
+.highlight-info {
+  top: 10px;
+  left: 10px;
+  max-width: 320px;
+}
+
+
+
+/* Mobile specific responsive */
+
+header.show-content .header-content {
+  display: flex !important;
+}
+
+@media (max-width: 1024px) {
+  header.show-content .hamburger div:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+  header.show-content .hamburger div:nth-child(2) {
+    opacity: 0;
+  }
+  header.show-content .hamburger div:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+}
+
+body.resizing {
+  user-select: none !important;
+  cursor: col-resize !important;
+}
